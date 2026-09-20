@@ -19,21 +19,23 @@ OUT=docs
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
+# Split the source at its <style> tag: everything above it is head material
+# (charset, viewport, title, font links), everything from it down is the body.
+STYLE_AT=$(grep -n '^<style>' "$SRC" | head -1 | cut -d: -f1)
+[ -n "$STYLE_AT" ] || { echo "error: no <style> line found in $SRC"; exit 1; }
+
 {
   echo '<!doctype html>'
   echo '<html lang="en">'
   echo '<head>'
-  # charset, <title> and the font links come from the top of the source
-  head -n 5 "$SRC"
-  echo '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+  head -n "$((STYLE_AT - 1))" "$SRC"
   echo '<meta name="robots" content="noindex, nofollow">'
   echo '<meta name="description" content="Stefano turns thirty. Mataro, 8-11 October 2026: arrivals, transfer groups, the villa and the plan.">'
   echo '<meta name="theme-color" content="#e8e8e0" media="(prefers-color-scheme: light)">'
   echo '<meta name="theme-color" content="#111519" media="(prefers-color-scheme: dark)">'
   echo '</head>'
   echo '<body>'
-  # everything from <style> onwards
-  tail -n +6 "$SRC"
+  tail -n +"$STYLE_AT" "$SRC"
   echo '</body>'
   echo '</html>'
 } > "$OUT/index.html"

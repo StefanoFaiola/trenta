@@ -347,7 +347,8 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
   display:block;width:100%;height:auto;margin-top:26px;
   aspect-ratio:16/8;object-fit:cover;background:var(--surface-2);
 }
-@media(max-width:620px){.lead{aspect-ratio:3/2;margin-top:20px}}
+/* The phone gets the 3x2 tile grid instead — see .gallery below */
+@media(max-width:620px){.lead{display:none}}
 .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);margin:18px 0 0}
 .facts div{background:var(--surface);padding:11px 12px}
 .facts dt{font:500 9px/1 "IBM Plex Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
@@ -374,10 +375,17 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
 .vlink:hover::before{background:var(--accent)}
 
 /* ---------- gallery ---------- */
-/* 150px min keeps two columns on a phone — at 190px it fell to one and every
-   photo rendered full-bleed. Still one row on desktop. */
+/* Every photo is a tile here. On desktop the first is hidden because the big
+   lead image above already shows it; on a phone the lead is hidden instead
+   and all six tile up as a compact 3x2 grid you tap to open full size. */
 .gallery{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:34px}
-@media(max-width:620px){.gallery{gap:6px;margin-top:24px}}
+.gallery button:first-child{display:none}
+@media(max-width:620px){
+  .gallery{gap:5px;margin-top:20px;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .gallery button:first-child{display:block}
+  .gallery img{aspect-ratio:1}
+  .gallery span{display:none}
+}
 .gallery button{
   position:relative;display:block;padding:0;border:0;margin:0;overflow:hidden;
   background:var(--surface-2);cursor:pointer;font:inherit;
@@ -926,11 +934,19 @@ const PLAN = [
   lead.src = PHOTOS[0].src;
   lead.alt = PHOTOS[0].alt;
   lead.style.cursor = "zoom-in";
+  lead.tabIndex = 0;
+  lead.setAttribute("role", "button");
+  lead.setAttribute("aria-label", "Open photo 1 of " + PHOTOS.length + " full size");
   lead.addEventListener("click", () => open_(0));
+  lead.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open_(0); }
+  });
 
-  $("#gallery").innerHTML = PHOTOS.slice(1).map((p, i) =>
-    '<button type="button" data-i="' + (i + 1) + '"><img src="' + esc(p.src) + '" alt="' + esc(p.alt) +
-    '" loading="lazy" width="1200" height="900"><span>' + esc(p.cap) + "</span></button>").join("");
+  /* All six render as tiles; CSS decides which are shown at this width. */
+  $("#gallery").innerHTML = PHOTOS.map((p, i) =>
+    '<button type="button" data-i="' + i + '"><img src="' + esc(p.src) + '" alt="' + esc(p.alt) +
+    '" loading="' + (i ? "lazy" : "eager") + '" width="1200" height="900"><span>' +
+    esc(p.cap) + "</span></button>").join("");
 
   $("#credit").innerHTML = esc(PHOTO_CREDIT) + ' — <a href="' + esc(VENUE.listing) +
     '" target="_blank" rel="noopener">airbnb.it/rooms/48167318</a>';

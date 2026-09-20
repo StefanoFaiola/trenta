@@ -1,0 +1,985 @@
+<meta charset="utf-8">
+<title>Sterthday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=Literata:ital,opsz,wght@0,7..72,400..600;1,7..72,400&display=swap">
+
+<style>
+/* ============================================================
+   STERTHDAY — tokens
+   Palette is trencadis: broken tile in plaster. The four tile
+   colours double as the four transfer-group colours.
+   ============================================================ */
+:root{
+  --plaster:#e8e8e0;
+  --surface:#f3f2ec;
+  --surface-2:#deded4;
+  --ink:#151b22;
+  --ink-2:#556069;
+  --ink-3:#7d8891;
+  --line:#cdcdc0;
+  --blau:#1f5fd0;
+  --groc:#a8730a;
+  --verd:#0d7a6c;
+  --foc:#c33a26;
+  --accent:var(--blau);
+  --chamfer:13px;
+  --gutter:clamp(16px,5vw,64px);
+  --measure:66ch;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --plaster:#111519;
+    --surface:#191f25;
+    --surface-2:#232a31;
+    --ink:#ecebe3;
+    --ink-2:#a3aeb7;
+    --ink-3:#7e8992;
+    --line:#2b333b;
+    --blau:#77a2ff;
+    --groc:#e0a63a;
+    --verd:#35bda8;
+    --foc:#f4705a;
+  }
+}
+:root[data-theme="dark"]{
+  --plaster:#111519;
+  --surface:#191f25;
+  --surface-2:#232a31;
+  --ink:#ecebe3;
+  --ink-2:#a3aeb7;
+  --ink-3:#7e8992;
+  --line:#2b333b;
+  --blau:#77a2ff;
+  --groc:#e0a63a;
+  --verd:#35bda8;
+  --foc:#f4705a;
+}
+
+*{box-sizing:border-box}
+/* Carried in the page itself so it also holds when self-hosted:
+   without this, .lb{display:flex} would beat the hidden attribute
+   and the lightbox would sit open over the page. */
+[hidden]{display:none!important}
+img{max-width:100%}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--plaster);
+  color:var(--ink);
+  font:400 clamp(15px,1.05vw,17px)/1.65 Literata,Georgia,"Times New Roman",serif;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:var(--plaster)}
+
+/* Cerda's chamfered block — the shape language of the whole page */
+.block{
+  clip-path:polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer), 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer));
+}
+
+h1,h2,h3{
+  font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  font-weight:700;margin:0;text-wrap:balance;letter-spacing:-.02em;line-height:1.02;
+}
+p{margin:0}
+a{color:inherit}
+
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+.eyebrow{
+  font:500 11px/1.4 "IBM Plex Mono",monospace;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);
+}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- skip link ---------- */
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:100;
+  background:var(--ink);color:var(--plaster);padding:10px 16px;
+  font:500 13px "IBM Plex Mono",monospace;
+}
+.skip:focus{left:var(--gutter);top:8px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:50;
+  background:color-mix(in srgb,var(--plaster) 88%,transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{
+  max-width:1180px;margin:0 auto;
+  padding-block:9px;padding-inline:var(--gutter);
+  display:flex;align-items:center;gap:18px;
+}
+.brand{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+  font-size:17px;letter-spacing:.04em;text-decoration:none;flex:none;
+}
+.brand i{font-style:normal;color:var(--accent)}
+nav{
+  margin-left:auto;display:flex;gap:2px;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+nav::-webkit-scrollbar{display:none}
+nav a{
+  position:relative;flex:none;text-decoration:none;
+  font:500 12px/1 "IBM Plex Mono",monospace;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 13px;color:var(--ink-2);
+  transition:color .18s ease;
+}
+nav a::before{
+  content:"";position:absolute;inset:0;z-index:-1;background:transparent;
+  clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+  transition:background .18s ease;
+}
+nav a:hover{color:var(--ink)}
+nav a:hover::before{background:var(--surface-2)}
+nav a[aria-current="true"]{color:var(--plaster)}
+nav a[aria-current="true"]::before{background:var(--ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding-inline:var(--gutter)}
+section{scroll-margin-top:72px}
+.sec{padding-block:clamp(52px,8vw,96px)}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-bottom:10px}
+.sec-head h2{font-size:clamp(28px,4.4vw,46px)}
+.sec-head .cat{color:var(--ink-3)}
+.sec-note{max-width:var(--measure);color:var(--ink-2);margin-top:10px}
+
+/* ---------- trencadis rule ---------- */
+.shards{display:flex;gap:3px;height:11px;overflow:hidden}
+.shards i{display:block;height:100%;flex:none}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(40px,7vw,84px) clamp(36px,5vw,64px)}
+.wordmark{
+  font-size:clamp(44px,17.1vw,198px);font-weight:800;
+  font-stretch:96%;letter-spacing:-.045em;line-height:.86;
+  display:flex;margin:14px 0 0;
+}
+.wordmark span{display:block;animation:drop .5s cubic-bezier(.2,.8,.3,1) both}
+/* STE is Stefano, RTHDAY finishes the word — the colour shows the join */
+.wordmark span:nth-child(-n+3){color:var(--blau)}
+.wordmark span:nth-child(1){animation-delay:.02s}
+.wordmark span:nth-child(2){animation-delay:.05s}
+.wordmark span:nth-child(3){animation-delay:.08s}
+.wordmark span:nth-child(4){animation-delay:.11s}
+.wordmark span:nth-child(5){animation-delay:.14s}
+.wordmark span:nth-child(6){animation-delay:.17s}
+.wordmark span:nth-child(7){animation-delay:.20s}
+.wordmark span:nth-child(8){animation-delay:.23s}
+.wordmark span:nth-child(9){animation-delay:.26s}
+@keyframes drop{from{opacity:0;transform:translateY(-.14em)}to{opacity:1;transform:none}}
+.hero-lede{
+  font-size:clamp(19px,2.3vw,27px);line-height:1.38;max-width:24ch;
+  margin-top:26px;text-wrap:balance;
+}
+.hero-lede em{font-style:italic;color:var(--accent)}
+.hero-grid{display:grid;gap:clamp(24px,4vw,56px);grid-template-columns:minmax(0,1fr) minmax(0,auto);align-items:end}
+@media(max-width:820px){.hero-grid{grid-template-columns:1fr;align-items:start}}
+
+.countdown{display:flex;gap:2px;margin:0;background:var(--line)}
+.countdown div{background:var(--surface);padding:14px 18px 12px;min-width:84px}
+.countdown dt{font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.countdown dd{
+  margin:7px 0 0;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  font-size:clamp(28px,4vw,40px);line-height:1;font-variant-numeric:tabular-nums;
+}
+.stats{
+  display:flex;flex-wrap:wrap;gap:6px 26px;margin-top:30px;
+  padding-top:16px;border-top:1px solid var(--line);
+  font:500 12px/1.5 "IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--ink-2);
+}
+.stats b{color:var(--ink);font-weight:600}
+
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.btn{
+  position:relative;text-decoration:none;display:inline-block;
+  font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;
+  padding:14px 20px;color:var(--plaster);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;z-index:-1;background:var(--ink);
+  clip-path:polygon(9px 0,calc(100% - 9px) 0,100% 9px,100% calc(100% - 9px),calc(100% - 9px) 100%,9px 100%,0 calc(100% - 9px),0 9px);
+  transition:background .18s ease;
+}
+.btn:hover::before{background:var(--accent)}
+.btn.ghost{color:var(--ink)}
+.btn.ghost::before{background:var(--surface-2)}
+.btn.ghost:hover{color:var(--plaster)}
+
+/* ---------- lookup ---------- */
+.lookup{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:26px 0 8px}
+.lookup input{
+  flex:1 1 260px;min-width:0;font:400 15px/1 Literata,serif;
+  padding:13px 16px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);
+}
+.lookup input::placeholder{color:var(--ink-3)}
+.lookup input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.lookup output{font:500 12px "IBM Plex Mono",monospace;color:var(--ink-3);letter-spacing:.06em}
+
+/* boarding-pass card for a single match */
+.pass{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto);gap:18px 28px;
+  background:var(--surface);padding:22px 24px;margin:0 0 22px;
+  box-shadow:inset 0 0 0 1px var(--line), inset 5px 0 0 0 var(--c,var(--accent));
+}
+@media(max-width:620px){.pass{grid-template-columns:1fr}}
+.pass h3{font-size:clamp(22px,3.4vw,30px)}
+.pass .pl{display:flex;flex-wrap:wrap;gap:4px 24px;margin:0}
+.pass .pl div{min-width:112px}
+.pass .pl dt{font:500 10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.pass .pl dd{margin:2px 0 0;font:500 15px/1.4 "IBM Plex Mono",monospace}
+
+/* ---------- arrivals board ---------- */
+.board{display:flex;flex-direction:column;gap:1px;background:var(--line);margin-top:20px}
+.board-head,.row{
+  display:grid;gap:5px 16px;align-items:center;
+  background:var(--surface);padding:13px 16px;
+  grid-template-columns:78px minmax(0,1.5fr) minmax(0,1.6fr) 104px 128px;
+  grid-template-areas:"time who how at grp";
+}
+.board-head{
+  background:var(--surface-2);padding-block:9px;
+  font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+}
+.daybar{
+  background:var(--ink);color:var(--plaster);padding:9px 16px;
+  font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.18em;text-transform:uppercase;
+  display:flex;justify-content:space-between;gap:12px;
+}
+.daybar span{color:color-mix(in srgb,var(--plaster) 62%,transparent);font-weight:400}
+.c-time{grid-area:time;font:600 17px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.c-who{grid-area:who;min-width:0}
+.c-who b{display:block;font:600 16px/1.25 "Bricolage Grotesque",sans-serif;letter-spacing:-.01em}
+.c-who span{font:400 12px/1.4 "IBM Plex Mono",monospace;color:var(--ink-3)}
+.c-how{grid-area:how;min-width:0;font:400 13px/1.4 "IBM Plex Mono",monospace;color:var(--ink-2)}
+.c-how b{font-weight:500;color:var(--ink)}
+.c-at{grid-area:at;font:500 13px/1 "IBM Plex Mono",monospace}
+.c-grp{grid-area:grp;display:flex}
+@media(max-width:840px){
+  .board-head{display:none}
+  .row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"time grp" "who who" "how at";padding:14px 16px}
+  .c-at{text-align:right}
+}
+.row.dim{display:none}
+.row.hit{background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+
+.chip{
+  --c:var(--accent);
+  display:inline-flex;align-items:center;gap:7px;
+  font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;
+  padding:7px 10px;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 40%,transparent);
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+}
+.chip::before{content:"";width:7px;height:7px;background:var(--c);flex:none}
+/* SOLO reads as "no shared ride": hollow marker, not a filled one */
+.chip.solo::before{background:transparent;box-shadow:inset 0 0 0 2px var(--c)}
+
+/* ---------- groups ---------- */
+.groups{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));margin-top:26px}
+.gcard{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column}
+.gcard .cap{height:7px;background:var(--c)}
+.gcard.solo .cap{background:repeating-linear-gradient(90deg,var(--c) 0 7px,transparent 7px 14px)}
+.gcard .gin{padding:20px 20px 22px;display:flex;flex-direction:column;flex:1}
+.gcard h3{font-size:25px;color:var(--c);font-family:"IBM Plex Mono",monospace;letter-spacing:.02em}
+.gcard .gmeaning{font:400 13px/1.55 Literata,serif;color:var(--ink-2);margin-top:8px}
+.gmeta{
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+  font:400 11px/1.7 "IBM Plex Mono",monospace;color:var(--ink-3);
+}
+.gmeta b{color:var(--ink-2);font-weight:500}
+.gmem{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
+.gmem li{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.gmem b{font:600 14px/1.3 "Bricolage Grotesque",sans-serif}
+.gmem span{font:400 11px/1.3 "IBM Plex Mono",monospace;color:var(--ink-3);text-align:right;flex:none}
+
+/* ---------- location ---------- */
+/* The two boxes are one object: equal width, equal height, same treatment */
+.loc{display:grid;gap:clamp(18px,3vw,34px);grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin-top:26px}
+@media(max-width:900px){.loc{grid-template-columns:1fr}}
+.venue{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:24px;display:flex;flex-direction:column;min-width:0}
+.venue h3{font-size:clamp(24px,3.4vw,32px)}
+.venue address{font-style:normal;font:400 14px/1.7 "IBM Plex Mono",monospace;color:var(--ink-2);margin-top:12px}
+.venue address b{color:var(--ink);font-weight:500}
+.mapbox{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:24px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+svg.map{display:block;width:100%;height:auto;max-width:100%}
+.map .sea{fill:color-mix(in srgb,var(--blau) 16%,transparent)}
+.map .land{fill:var(--surface-2)}
+.map .grid{stroke:var(--line);stroke-width:1;fill:none}
+.map .hill{stroke:var(--ink-3);stroke-width:1.4;fill:none;opacity:.45}
+.map .rail{stroke:var(--ink);stroke-width:2.2;fill:none}
+.map .dash{stroke:var(--foc);stroke-width:1.8;fill:none;stroke-dasharray:7 5}
+.map .tick{fill:var(--surface);stroke:var(--ink);stroke-width:1.8}
+.map .dot{fill:var(--ink-2)}
+.map .lbl{fill:var(--ink-2);font:400 10.5px "IBM Plex Mono",monospace;letter-spacing:.03em}
+.map .lbl.key{fill:var(--ink);font-weight:500;font-size:12px}
+.map .star{fill:var(--foc)}
+.map .coast{stroke:var(--blau);stroke-width:1.4;fill:none;opacity:.7}
+.mapcap{font:400 11px/1.5 "IBM Plex Mono",monospace;color:var(--ink-3);margin-top:12px;letter-spacing:.04em}
+
+/* ---------- villa ---------- */
+.lead{
+  display:block;width:100%;height:auto;margin-top:26px;
+  aspect-ratio:16/8;object-fit:cover;background:var(--surface-2);
+}
+@media(max-width:620px){.lead{aspect-ratio:4/3}}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);margin:18px 0 0}
+.facts div{background:var(--surface);padding:11px 12px}
+.facts dt{font:500 9px/1 "IBM Plex Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.facts dd{margin:7px 0 0;font:600 21px/1 "Bricolage Grotesque",sans-serif;font-variant-numeric:tabular-nums}
+.keytime{
+  display:flex;flex-wrap:wrap;gap:1px;background:var(--line);margin-top:1px;
+}
+.keytime div{background:var(--surface);padding:11px 13px;flex:1 1 130px}
+.keytime dt{font:500 9px/1 "IBM Plex Mono",monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.keytime dd{margin:6px 0 0;font:500 14px/1 "IBM Plex Mono",monospace;color:var(--accent)}
+.vlinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:18px}
+.vlink{
+  position:relative;text-decoration:none;display:inline-block;
+  font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;
+  padding:12px 15px;color:var(--ink);
+}
+.vlink::before{
+  content:"";position:absolute;inset:0;z-index:-1;background:var(--surface-2);
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+  transition:background .18s ease;
+}
+.vlink:hover{color:var(--plaster)}
+.vlink:hover::before{background:var(--accent)}
+
+/* ---------- gallery ---------- */
+.gallery{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:34px}
+.gallery button{
+  position:relative;display:block;padding:0;border:0;margin:0;overflow:hidden;
+  background:var(--surface-2);cursor:pointer;font:inherit;
+  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+}
+.gallery img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;transition:transform .45s ease}
+.gallery button:hover img,.gallery button:focus-visible img{transform:scale(1.045)}
+.gallery span{
+  position:absolute;left:0;right:0;bottom:0;text-align:left;
+  padding:22px 12px 10px;color:#fff;
+  font:500 10px/1.3 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;
+  background:linear-gradient(to top,rgba(10,14,18,.78),rgba(10,14,18,0));
+}
+.credit{font:400 11px/1.6 "IBM Plex Mono",monospace;color:var(--ink-3);margin-top:12px;letter-spacing:.03em}
+.credit a{color:var(--accent)}
+
+/* ---------- lightbox ---------- */
+.lb{
+  position:fixed;inset:0;z-index:200;margin:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px);
+  background:rgba(8,11,14,.94);
+}
+.lb img{max-width:100%;max-height:78vh;object-fit:contain;display:block}
+.lb figcaption{
+  font:500 11px/1.4 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.72);text-align:center;
+}
+.lb nav{margin:0;display:flex;gap:8px;overflow:visible}
+.lb button{
+  border:0;cursor:pointer;color:#fff;background:rgba(255,255,255,.14);
+  font:500 12px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;
+  padding:12px 16px;
+}
+.lb button:hover{background:rgba(255,255,255,.28)}
+.lb .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:14px}
+
+/* ---------- plan ---------- */
+.draftbar{
+  display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;
+  background:color-mix(in srgb,var(--groc) 14%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--groc) 45%,transparent);
+  padding:13px 18px;margin-top:22px;
+  font:400 13px/1.5 Literata,serif;color:var(--ink-2);
+}
+.draftbar b{font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--groc)}
+.draftbar code{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink)}
+/* All four days sit on one row — the weekend read end to end, never wrapped */
+.days{display:grid;gap:10px;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:16px}
+@media(max-width:940px){.days{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.days{grid-template-columns:1fr}}
+.day{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:18px 16px;min-width:0}
+.day h3{font-size:20px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.day h3 small{font:400 11px "IBM Plex Mono",monospace;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase}
+.daynote{font:400 13px/1.5 Literata,serif;color:var(--ink-2);margin-top:8px;padding-bottom:4px}
+.slots{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column}
+.slots li{display:grid;grid-template-columns:60px minmax(0,1fr);gap:3px 10px;padding:10px 0;border-top:1px solid var(--line)}
+.slots li:first-child{border-top:0;padding-top:0}
+.slots time{font:600 11.5px/1.55 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink-2);overflow-wrap:anywhere}
+.slots b{font:600 14.5px/1.35 "Bricolage Grotesque",sans-serif;overflow-wrap:break-word}
+.slots p{grid-column:2;font:400 12.5px/1.5 Literata,serif;color:var(--ink-2)}
+.tbc{
+  font:500 9px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--groc);background:color-mix(in srgb,var(--groc) 14%,transparent);
+  padding:4px 6px;margin-left:7px;vertical-align:2px;white-space:nowrap;
+}
+
+/* ---------- know-before ---------- */
+.notes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-top:34px}
+.note{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:18px 20px}
+.note h3{font-size:16px;letter-spacing:0}
+.note p{margin-top:7px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+
+/* ---------- footer ---------- */
+footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
+.foot{display:flex;flex-wrap:wrap;gap:14px 30px;align-items:baseline;justify-content:space-between}
+.foot p{font:400 12px/1.7 "IBM Plex Mono",monospace;color:var(--ink-3);letter-spacing:.04em}
+.foot a{color:var(--accent)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top"><i>STE</i>RTHDAY</a>
+    <nav aria-label="Sections">
+      <a href="#top">Start</a>
+      <a href="#arrivals">Arrivals</a>
+      <a href="#groups">Transfers</a>
+      <a href="#where">Where</a>
+      <a href="#plan">Plan</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============== 1. LANDING ============== -->
+  <section id="top" class="hero">
+    <div class="wrap">
+      <p class="eyebrow" id="heroDate">Barcelona</p>
+      <h1 class="wordmark" aria-label="Sterthday"><span aria-hidden="true">S</span><span aria-hidden="true">T</span><span aria-hidden="true">E</span><span aria-hidden="true">R</span><span aria-hidden="true">T</span><span aria-hidden="true">H</span><span aria-hidden="true">D</span><span aria-hidden="true">A</span><span aria-hidden="true">Y</span></h1>
+      <div class="hero-grid">
+        <div>
+          <p class="hero-lede" id="heroLede">Thirty years, one weekend, <em>one very long table</em> &mdash; in a house on the Maresme coast with the sea at the bottom of the garden.</p>
+          <div class="btnrow">
+            <a class="btn" href="#arrivals">Find your arrival</a>
+            <a class="btn ghost" href="#where">Where it happens</a>
+          </div>
+        </div>
+        <dl class="countdown" id="countdown" aria-label="Time until the weekend starts"></dl>
+      </div>
+      <p class="stats" id="stats"></p>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="shards" data-shards data-seed="3" aria-hidden="true"></div></div>
+
+  <!-- ============== 2. ARRIVALS ============== -->
+  <section id="arrivals" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Arrivals board</h2>
+        <p class="eyebrow cat">Qui arriba quan</p>
+      </div>
+      <p class="sec-note">Everyone lands across Thursday and Friday. Find your line, note your transfer code. It tells you who you are travelling over with.</p>
+
+      <div class="lookup">
+        <label class="eyebrow" for="lookup" style="flex:none">Your name</label>
+        <input id="lookup" type="search" placeholder="Type your name to find your line&hellip;" autocomplete="off" spellcheck="false">
+        <output id="count" for="lookup"></output>
+      </div>
+
+      <div id="pass" hidden></div>
+
+      <div class="board" id="board" role="table" aria-label="Arrivals"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="shards" data-shards data-seed="17" aria-hidden="true"></div></div>
+
+  <!-- ============== 3. GROUPS ============== -->
+  <section id="groups" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Transfer groups</h2>
+        <p class="eyebrow cat">Els trasllats</p>
+      </div>
+      <p class="sec-note">The code on your line reads <b>D</b> for the day you land and <b>G</b> for the group: D1G1 comes in on Thursday, D2G1 and D2G2 on Friday. <b>SOLO</b> means you are travelling on your own and there is no shared ride waiting &mdash; message Stefano when you land.</p>
+      <div class="groups" id="groups-grid"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="shards" data-shards data-seed="41" aria-hidden="true"></div></div>
+
+  <!-- ============== 4. LOCATION ============== -->
+  <section id="where" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Villa Can Bagu&eacute;s</h2>
+        <p class="eyebrow cat">El lloc</p>
+      </div>
+      <p class="sec-note">Not in Barcelona at all. The house sits on the shore at Matar&oacute;, thirty-five kilometres up the Maresme coast &mdash; umbrella pines, a pool, and a gate straight onto the N-II.</p>
+
+      <img class="lead block" id="leadImg" src="photos/01-pool-sea.jpg" width="1200" height="731" alt="The villa's lawn and long pool under umbrella pines, with the Mediterranean filling the horizon behind.">
+
+      <div class="loc">
+        <div class="venue" id="venue"></div>
+
+        <div class="mapbox">
+          <svg class="map" viewBox="0 0 660 340" role="img" aria-labelledby="mapTitle mapDesc">
+            <title id="mapTitle">The Maresme coast, Barcelona to Matar&oacute;</title>
+            <desc id="mapDesc">The R1 coastal railway runs north-east from Barcelona through Badalona, Montgat, El Masnou, Premi&agrave; and Vilassar to Matar&oacute;, where the villa sits on the shore roughly 35 kilometres from the city. Barcelona airport lies south-west of the city.</desc>
+
+            <path class="land" d="M0 0 H660 V120 L0 300 Z"/>
+            <path class="sea" d="M0 300 L660 120 V340 H0 Z"/>
+            <path class="coast" d="M0 300 L660 120"/>
+            <text class="lbl" x="646" y="326" text-anchor="end" style="fill:var(--blau);opacity:.8">M E D I T E R R A N I</text>
+
+            <path class="hill" d="M126 66 q42 -30 82 0 q40 -28 80 2 q42 -26 78 4"/>
+            <text class="lbl" x="126" y="46">Serralada Litoral</text>
+
+            <path class="rail" d="M60 272 L612 112"/>
+            <text class="lbl key" x="70" y="250">R1</text>
+
+            <circle class="dot" cx="26" cy="282" r="5"/>
+            <text class="lbl key" transform="rotate(-45 26 282)" x="36" y="279">BCN airport</text>
+
+            <circle class="tick" cx="148" cy="246" r="4.5"/>
+            <text class="lbl" transform="rotate(-45 148 246)" x="157" y="243">Barcelona</text>
+
+            <circle class="tick" cx="242" cy="219" r="4"/>
+            <text class="lbl" transform="rotate(-45 242 219)" x="251" y="216">Badalona</text>
+
+            <circle class="tick" cx="308" cy="200" r="4"/>
+            <text class="lbl" transform="rotate(-45 308 200)" x="317" y="197">Montgat</text>
+
+            <circle class="tick" cx="369" cy="182" r="4"/>
+            <text class="lbl" transform="rotate(-45 369 182)" x="378" y="179">El Masnou</text>
+
+            <circle class="tick" cx="424" cy="166" r="4"/>
+            <text class="lbl" transform="rotate(-45 424 166)" x="433" y="163">Premi&agrave;</text>
+
+            <circle class="tick" cx="477" cy="151" r="4"/>
+            <text class="lbl" transform="rotate(-45 477 151)" x="486" y="148">Vilassar</text>
+
+            <circle class="tick" cx="546" cy="131" r="4.5"/>
+            <text class="lbl" transform="rotate(-45 546 131)" x="555" y="128">Matar&oacute;</text>
+
+            <path class="star" d="M592 104 l7 14 l15 2 l-11 11 l3 15 l-14 -7 l-14 7 l3 -15 l-11 -11 l15 -2 Z"/>
+            <path class="dash" d="M596 112 L616 92 H 648" style="stroke-dasharray:none;stroke-width:1.2"/>
+            <text class="lbl key" x="652" y="84" text-anchor="end" style="fill:var(--foc)">the villa</text>
+
+            <path class="coast" d="M152 302 L556 192" style="stroke-width:1;opacity:.5"/>
+            <path class="coast" d="M150 297 L154 307" style="stroke-width:1;opacity:.5"/>
+            <path class="coast" d="M554 187 L558 197" style="stroke-width:1;opacity:.5"/>
+            <text class="lbl" transform="rotate(-15.3 354 247)" x="354" y="239" text-anchor="middle" style="fill:var(--blau)">&asymp; 35 km &middot; 40 min on the R1</text>
+          </svg>
+          <p class="mapcap">Schematic, not to scale. The R1 hugs the shore the whole way &mdash; the same route that opened in 1848 as Spain's first railway, Barcelona to Matar&oacute;. It still runs between the villa's garden and the beach.</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="gallery"></div>
+      <p class="credit" id="credit"></p>
+
+      <div class="notes" id="notes"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="shards" data-shards data-seed="59" aria-hidden="true"></div></div>
+
+  <!-- ============== 5. PLAN ============== -->
+  <section id="plan" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>The plan</h2>
+        <p class="eyebrow cat">El pla</p>
+      </div>
+      <p class="sec-note">The shape of the weekend. Times marked TBC are still moving &mdash; the days and the anchors are not.</p>
+      <div class="draftbar"><b>Draft</b><span>Placeholder schedule. Replace the <code>PLAN</code> block in the page source once the bookings are confirmed.</span></div>
+      <div class="days" id="days"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="shards" data-shards data-seed="88" aria-hidden="true" style="margin-bottom:26px"></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</footer>
+
+<figure class="lb" id="lightbox" hidden>
+  <button class="x" type="button" id="lbClose" aria-label="Close">Close</button>
+  <img id="lbImg" src="" alt="">
+  <figcaption id="lbCap"></figcaption>
+  <nav>
+    <button type="button" id="lbPrev" aria-label="Previous photo">&lsaquo; Prev</button>
+    <button type="button" id="lbNext" aria-label="Next photo">Next &rsaquo;</button>
+  </nav>
+</figure>
+
+<script>
+/* ==============================================================
+   >>>  EDIT EVERYTHING IN THIS BLOCK — nothing below it  <<<
+   Paste your Excel export straight into GUESTS.
+   ============================================================== */
+
+const EVENT = {
+  host:      "Stefano",
+  city:      "Mataró, Barcelona",
+  startsISO: "2026-10-08T07:35:00+02:00",   // Thursday, first landing
+  endsISO:   "2026-10-11T13:00:00+02:00",   // Sunday, off the property
+  dateLabel: "Thu 8 → Sun 11 October 2026",
+  lede:      "Thirty years, one weekend, <em>one very long table</em> — in a house on the Maresme coast with the sea at the bottom of the garden."
+};
+
+/* -- TRANSFER GROUPS -----------------------------------------
+   The code reads D<arrival day>G<group>. SOLO means you are
+   travelling on your own and making your own way over.
+   ------------------------------------------------------------ */
+const GROUPS = {
+  D1G1: { name:"D1G1", color:"var(--blau)", when:"Thu 8 Oct · 23:45", where:"Airport arrivals",
+          note:"Both of you on VY6111 out of Fiumicino. Walk out together and go straight to the B&B — the villa is not open until Friday." },
+  D2G1: { name:"D2G1", color:"var(--verd)", when:"Fri 9 Oct · 18:10", where:"Airport arrivals",
+          note:"All four on VY6109 out of Fiumicino. Same plane, same belt, one transfer. You will be at the villa in time for dinner." },
+  D2G2: { name:"D2G2", color:"var(--foc)",  when:"Fri 9 Oct · 22:30–23:15", where:"Airport arrivals",
+          note:"Four flights landing 45 minutes apart. Whoever is out first waits — the transfer leaves once Enzo is through, around 23:15." },
+  SOLO: { name:"SOLO", color:"var(--groc)", solo:true, when:"Four different times", where:"Airport or Sants",
+          note:"No shared transfer: you are arriving on your own. Message Stefano when you land and he will sort out how you get across." }
+};
+
+/* -- PARTICIPANTS ---------------------------------------------
+   Straight from data/flight_details.xlsx (Arrival sheet).
+     from  : origin, as written in the sheet
+     mode  : "flight" | "train"
+     op    : flight number; empty = not booked / not known yet
+     at    : arrival, "YYYY-MM-DDTHH:MM", local Barcelona time
+     point : "Airport" for flights, "Sants" for the Madrid trains
+     group : transfer code — D1G1 / D2G1 / D2G2 / SOLO
+     back  : optional, from the Departure sheet (mostly empty so far)
+   ------------------------------------------------------------- */
+const GUESTS = [
+  { name:"Stefano Bertaccini",  from:"Bologna",    cc:"IT", mode:"flight", op:"FR2097",  at:"2026-10-08T07:35", point:"Airport", group:"SOLO", back:"Sun 11, 23:05 \u00b7 FR2097" },
+  { name:"Stefano Quercio",     from:"Madrid",     cc:"ES", mode:"train",  op:"",        at:"2026-10-08T21:44", point:"Sants",   group:"SOLO" },
+  { name:"Ilaria Coppola",      from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6111",  at:"2026-10-08T23:45", point:"Airport", group:"D1G1" },
+  { name:"Caterina Squarcia",   from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6111",  at:"2026-10-08T23:45", point:"Airport", group:"D1G1" },
+  { name:"Mattia Gagliardi",    from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
+  { name:"Marco Ciampini",      from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
+  { name:"Federica Faiola",     from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
+  { name:"Leonardo Mostarda",   from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
+  { name:"Matilda Guerzoni",    from:"Bologna",    cc:"IT", mode:"flight", op:"FR8184",  at:"2026-10-09T20:30", point:"Airport", group:"SOLO" },
+  { name:"Pedro Moreira",       from:"Madrid",     cc:"ES", mode:"train",  op:"",        at:"2026-10-09T22:00", point:"Sants",   group:"SOLO" },
+  { name:"Lorenzo Vellini",     from:"Fiumicino",  cc:"IT", mode:"flight", op:"FR8573",  at:"2026-10-09T22:30", point:"Airport", group:"D2G2" },
+  { name:"Stefano Sansone",     from:"Berlin",     cc:"DE", mode:"flight", op:"EJU7172", at:"2026-10-09T22:45", point:"Airport", group:"D2G2" },
+  { name:"Giovanni Pierfelici", from:"Malpensa",   cc:"IT", mode:"flight", op:"",        at:"2026-10-09T22:50", point:"Airport", group:"D2G2" },
+  { name:"Enzo Guerzoni",       from:"Prague",     cc:"CZ", mode:"flight", op:"",        at:"2026-10-09T23:15", point:"Airport", group:"D2G2" }
+];
+
+/* -- LOCATION ------------------------------------------------- */
+const VENUE = {
+  name:     "Villa Can Bagués",
+  kind:     "Seafront villa · Mataró",
+  street:   "N-II, 11",
+  area:     "Mataró, El Maresme",
+  postcode: "08304 Catalunya, Spain",
+  coords:   "41.54460, 2.46454",
+  maps:     "https://www.google.com/maps/search/?api=1&query=41.54460144042969%2C2.4645400047302246",
+  listing:  "https://www.airbnb.it/rooms/48167318",
+  checkIn:  "Friday 9 Oct, 14:00",
+  checkOut: "Sunday 11 Oct, 12:00 / 13:00",
+  facts:    [["Bedrooms", "10"], ["Beds", "11"], ["Bathrooms", "4"], ["Sleeps", "16"]],
+  note:     "Ten bedrooms, a pool, eleven thousand square metres of garden and a gate straight onto the N-II. The listing sleeps 16 — the estate takes larger private stays on request, so confirm the real headcount with the host before anyone books a flight."
+};
+
+const NOTES = [
+  { h:"October weather", p:"The good version of autumn: 23 °C in the day, 15 °C at night, sea still around 22 °C. Swimming is entirely realistic. The pool is not heated — that is a different question." },
+  { h:"Spanish hours",   p:"Lunch is 14:00, dinner is 21:30, and nothing serious starts before midnight. Do not eat at 19:00 unless you want the tourist menu." },
+  { h:"You are not in Barcelona", p:"The city is 35 km down the coast — 40 min on the R1, which runs roughly every 20 min. The last train back to Mataró is around 23:00. Check the Rodalies app before you commit to a late one." },
+  { h:"Bring",           p:"Something for the pool, something for a long dinner, and shoes that survive gravel. There is a grand piano in the house, so bring whatever you play." }
+];
+
+/* -- PHOTOS — the first one is the big lead image ------------- */
+const PHOTOS = [
+  { src:"photos/01-pool-sea.jpg",  cap:"The pool, the pines, the sea", alt:"The villa's lawn and long pool under umbrella pines, with the Mediterranean filling the horizon behind." },
+  { src:"photos/02-approach.jpg",  cap:"The approach",                 alt:"A brick path climbing through flowering shrubs towards the two-storey villa, framed by tall umbrella pines." },
+  { src:"photos/03-gate.jpg",      cap:"The gate — number 11 on the N-II", alt:"The villa's entrance on the N-II: a zig-zag concrete canopy over a stone wall and gate, marked number 11." },
+  { src:"photos/04-pergola.jpg",   cap:"The pergola over the water",   alt:"A wooden pergola on whitewashed pillars looking straight out to sea, with the coastal railway running below it." },
+  { src:"photos/05-garden.jpg",    cap:"The garden and the pond",      alt:"A pond and flowerbeds on the lawn, with the curved white pool pavilion and the sea beyond." },
+  { src:"photos/06-living.jpg",    cap:"The living room",              alt:"A mid-century living room with a white conical fireplace, a stone partition wall and a red terrazzo floor." }
+];
+const PHOTO_CREDIT = "Photos from the Airbnb listing";
+
+/* -- PLAN — replace once confirmed ---------------------------- */
+const PLAN = [
+  { day:"Thursday", date:"8 Oct", note:"Four of us, one night before the villa opens.", slots:[
+    { t:"07:35", h:"First landing",      tbc:false, p:"Stefano B. is in early. Everyone else on this day arrives in the evening." },
+    { t:"evening", h:"Check in at the B&B", tbc:true, p:"One night only — the villa is not ours until Friday afternoon. Address to follow." },
+    { t:"late",  h:"Out for dinner",     tbc:true,  p:"Somewhere near the B&B. The last flight lands at 23:45, so this one runs late." }
+  ]},
+  { day:"Friday", date:"9 Oct", note:"Villa day. Ten more people land through the evening.", slots:[
+    { t:"morning", h:"Work",             tbc:false, p:"For those who came on Thursday: laptops out, it is still a working day." },
+    { t:"14:00", h:"Check-in at the villa", tbc:false, p:"N-II, 11. Rooms, keys, and first claim on the good beds." },
+    { t:"afternoon", h:"Work, pool, or sea", tbc:false, p:"Whichever you can justify. The steps go straight down to the water." },
+    { t:"18:10", h:"D2G1 lands",         tbc:false, p:"Four of them on the same plane out of Fiumicino." },
+    { t:"20:00", h:"Ready for dinner",   tbc:true,  p:"Cleaned up and downstairs, ready to meet people as they turn up." },
+    { t:"21:00", h:"Easy dinner",        tbc:true,  p:"Deliberately loose — everyone lands at a different time and the last group is not in until 23:15. Eat when you can, stay at the table." }
+  ]},
+  { day:"Saturday", date:"10 Oct", note:"The main event.", slots:[
+    { t:"morning", h:"Slow",             tbc:false, p:"Nothing scheduled. Sleep, run, swim, all three." },
+    { t:"12:30", h:"Brunch",             tbc:true,  p:"The first time all of us are in the same room." },
+    { t:"afternoon", h:"Group activities or chill", tbc:true, p:"Something organised for those who want it, nothing for those who do not." },
+    { t:"18:00", h:"Wine tasting & aperitivo", tbc:false, p:"This is where the evening properly starts. Be there." },
+    { t:"21:00", h:"Dinner",             tbc:true,  p:"The long table. The actual reason everyone flew." },
+    { t:"late",  h:"Get crazy",          tbc:false, p:"All night. That is the whole brief." }
+  ]},
+  { day:"Sunday", date:"11 Oct", note:"Slow unwind in the city.", slots:[
+    { t:"12:00", h:"Check-out",          tbc:false, p:"Out of the rooms by 12:00, off the property by 13:00. Bags travel with you." },
+    { t:"13:00", h:"Back to Barcelona",  tbc:true,  p:"Down the coast on the R1, about 40 minutes." },
+    { t:"afternoon", h:"Barcelona, slowly", tbc:false, p:"Wander the city, sit somewhere, eat something. People peel off for their flights as the day goes." },
+    { t:"23:05", h:"Last flight out",    tbc:false, p:"Stefano B. on FR2097. Leave yourself 2 h 30 before any departure." }
+  ]}
+];
+
+/* ==============================================================
+   >>>  END OF THE EDITABLE BLOCK  <<<
+   ============================================================== */
+
+(function () {
+  const $ = (s, r) => (r || document).querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const MODE = { flight: "✈", train: "▬", bus: "▭", car: "▯" };
+
+  /* ---- trencadis rules ------------------------------------- */
+  const TILE = ["--blau", "--groc", "--verd", "--foc", "--ink"];
+  document.querySelectorAll("[data-shards]").forEach(el => {
+    let s = +el.dataset.seed || 7;
+    const rnd = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+    let out = "", x = 0;
+    while (x < 100) {
+      const w = 1.6 + rnd() * 5.4, c = TILE[Math.floor(rnd() * TILE.length)];
+      out += '<i style="width:' + w.toFixed(2) + "%;background:var(" + c + ");transform:skewX(" +
+        (rnd() * 30 - 15).toFixed(1) + "deg);opacity:" + (0.45 + rnd() * 0.55).toFixed(2) + '"></i>';
+      x += w;
+    }
+    el.innerHTML = out;
+  });
+
+  /* ---- hero ------------------------------------------------ */
+  $("#heroDate").textContent = EVENT.city + " · " + EVENT.dateLabel;
+  $("#heroLede").innerHTML = EVENT.lede;
+
+  const cities = new Set(GUESTS.map(g => g.from));
+  const countries = new Set(GUESTS.map(g => g.cc));
+  $("#stats").innerHTML =
+    "<span><b>" + GUESTS.length + "</b> arriving</span>" +
+    "<span><b>" + cities.size + "</b> origins</span>" +
+    "<span><b>" + countries.size + "</b> countries</span>" +
+    "<span><b>" + Object.keys(GROUPS).filter(k => !GROUPS[k].solo).length + "</b> transfers</span>" +
+    "<span><b>" + Math.round((new Date(EVENT.endsISO) - new Date(EVENT.startsISO)) / 36e5) + "</b> hours, first landing to check-out</span>";
+
+  const start = new Date(EVENT.startsISO);
+  function tick() {
+    const ms = start - Date.now();
+    const cd = $("#countdown");
+    if (ms <= 0) {
+      cd.innerHTML = '<div><dt>Status</dt><dd style="font-size:clamp(22px,3vw,30px)">It’s on</dd></div>';
+      return;
+    }
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60;
+    cd.innerHTML =
+      "<div><dt>Days</dt><dd>" + d + "</dd></div>" +
+      "<div><dt>Hours</dt><dd>" + String(h).padStart(2, "0") + "</dd></div>" +
+      "<div><dt>Minutes</dt><dd>" + String(m).padStart(2, "0") + "</dd></div>";
+  }
+  tick();
+  setInterval(tick, 20000);
+
+  /* ---- arrivals board -------------------------------------- */
+  const guests = GUESTS.slice().sort((a, b) => a.at.localeCompare(b.at));
+  const dayFmt = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  const shortFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric" });
+
+  function chip(key) {
+    const g = GROUPS[key];
+    if (!g) return "";
+    return '<span class="chip' + (g.solo ? " solo" : "") + '" style="--c:' + g.color + '">' + esc(g.name) + "</span>";
+  }
+  /* what to show in the "How" column when a flight number is missing */
+  function how(g) {
+    if (g.op) return MODE[g.mode] + " <b>" + esc(g.op) + "</b>";
+    if (g.mode === "train") return MODE.train + " <b>Train</b>";
+    return MODE[g.mode] + ' <b style="color:var(--ink-3)">number to come</b>';
+  }
+
+  let rowsHTML = '<div class="board-head" role="row"><div class="c-time">Lands</div><div class="c-who">Who</div>' +
+    '<div class="c-how">How</div><div class="c-at">Meet at</div><div class="c-grp">Group</div></div>';
+  let lastDay = "";
+  guests.forEach((g, i) => {
+    const key = g.at.slice(0, 10);
+    if (key !== lastDay) {
+      lastDay = key;
+      const n = guests.filter(x => x.at.slice(0, 10) === key).length;
+      rowsHTML += '<div class="daybar">' + esc(dayFmt.format(new Date(g.at))) +
+        "<span>" + n + (n === 1 ? " arrival" : " arrivals") + "</span></div>";
+    }
+    rowsHTML += '<div class="row" role="row" data-i="' + i + '" data-name="' + esc(g.name.toLowerCase()) + '">' +
+      '<div class="c-time">' + g.at.slice(11, 16) + "</div>" +
+      '<div class="c-who"><b>' + esc(g.name) + "</b><span>" + esc(g.from) + " · " + esc(g.cc) + "</span></div>" +
+      '<div class="c-how">' + how(g) + "</div>" +
+      '<div class="c-at">' + esc(g.point) + "</div>" +
+      '<div class="c-grp">' + chip(g.group) + "</div></div>";
+  });
+  $("#board").innerHTML = rowsHTML;
+
+  /* ---- name lookup -> boarding pass ------------------------ */
+  const input = $("#lookup"), out = $("#count"), pass = $("#pass");
+  const rows = Array.prototype.slice.call(document.querySelectorAll(".row"));
+  function search() {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0, hit = null;
+    rows.forEach(r => {
+      const match = !q || r.dataset.name.indexOf(q) > -1;
+      r.classList.toggle("dim", !match);
+      r.classList.toggle("hit", !!q && match);
+      if (match) { shown++; hit = r; }
+    });
+    out.textContent = q ? shown + " of " + rows.length + " shown" : rows.length + " arrivals";
+    if (q && shown === 1) {
+      const g = guests[+hit.dataset.i], gr = GROUPS[g.group] || {};
+      const col = gr.color || "var(--accent)";
+      pass.hidden = false;
+      pass.innerHTML = '<div class="pass block" style="--c:' + col + '">' +
+        '<div><p class="eyebrow">' + (gr.solo ? "You are travelling" : "Your transfer group") + '</p><h3 style="color:' + col + '">' +
+        esc(gr.name || "—") + "</h3>" +
+        '<p style="color:var(--ink-2);margin-top:8px;max-width:46ch">' + esc(gr.note || "") + "</p></div>" +
+        '<dl class="pl"><div><dt>Lands</dt><dd>' + esc(dayFmt.format(new Date(g.at))) + " · " + g.at.slice(11, 16) + "</dd></div>" +
+        "<div><dt>From</dt><dd>" + esc(g.from) + "</dd></div>" +
+        "<div><dt>On</dt><dd>" + esc(g.op || (g.mode === "train" ? "Train" : "to come")) + "</dd></div>" +
+        "<div><dt>Meet at</dt><dd>" + esc(g.point) + "</dd></div>" +
+        (g.back ? "<div><dt>Heads home</dt><dd>" + esc(g.back) + "</dd></div>" : "") +
+        "</dl></div>";
+    } else {
+      pass.hidden = true;
+      pass.innerHTML = "";
+    }
+  }
+  input.addEventListener("input", search);
+  search();
+
+  /* ---- groups ---------------------------------------------- */
+  $("#groups-grid").innerHTML = Object.keys(GROUPS).map(key => {
+    const g = GROUPS[key], mem = guests.filter(x => x.group === key);
+    return '<article class="gcard block' + (g.solo ? " solo" : "") + '" style="--c:' + g.color + '"><div class="cap"></div><div class="gin">' +
+      "<h3>" + esc(g.name) + '</h3><p class="gmeaning">' + esc(g.note) + "</p>" +
+      '<p class="gmeta">' + (g.solo ? "Arriving <b>" : "Leaves <b>") + esc(g.when) + "</b><br>" +
+      (g.solo ? "Into <b>" : "From <b>") + esc(g.where) + "</b><br>" +
+      mem.length + (mem.length === 1 ? " person" : " people") + "</p>" +
+      '<ul class="gmem">' + mem.map(m =>
+        "<li><b>" + esc(m.name) + "</b><span>" + esc(m.from) + "<br>" +
+        esc(shortFmt.format(new Date(m.at))) + " · " + m.at.slice(11, 16) + "</span></li>").join("") +
+      "</ul></div></article>";
+  }).join("");
+
+  /* ---- location -------------------------------------------- */
+  $("#venue").innerHTML = '<p class="eyebrow">' + esc(VENUE.kind) + "</p><h3>" + esc(VENUE.name) + "</h3>" +
+    "<address><b>" + esc(VENUE.street) + "</b><br>" + esc(VENUE.area) + "<br>" + esc(VENUE.postcode) +
+    "<br><br>" + esc(VENUE.coords) + "</address>" +
+    '<dl class="facts">' + VENUE.facts.map(f =>
+      "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>").join("") + "</dl>" +
+    '<dl class="keytime"><div><dt>Check-in</dt><dd>' + esc(VENUE.checkIn) + "</dd></div>" +
+    "<div><dt>Check-out</dt><dd>" + esc(VENUE.checkOut) + "</dd></div></dl>" +
+    '<p style="margin-top:16px;color:var(--ink-2);font-size:14px;line-height:1.6">' + esc(VENUE.note) + "</p>" +
+    '<div class="vlinks"><a class="vlink" href="' + esc(VENUE.maps) + '" target="_blank" rel="noopener">Open in maps</a>' +
+    '<a class="vlink" href="' + esc(VENUE.listing) + '" target="_blank" rel="noopener">The listing</a></div>';
+
+  /* ---- gallery + lightbox ---------------------------------- */
+  const lead = $("#leadImg");
+  lead.src = PHOTOS[0].src;
+  lead.alt = PHOTOS[0].alt;
+  lead.style.cursor = "zoom-in";
+  lead.addEventListener("click", () => open_(0));
+
+  $("#gallery").innerHTML = PHOTOS.slice(1).map((p, i) =>
+    '<button type="button" data-i="' + (i + 1) + '"><img src="' + esc(p.src) + '" alt="' + esc(p.alt) +
+    '" loading="lazy" width="1200" height="900"><span>' + esc(p.cap) + "</span></button>").join("");
+
+  $("#credit").innerHTML = esc(PHOTO_CREDIT) + ' — <a href="' + esc(VENUE.listing) +
+    '" target="_blank" rel="noopener">airbnb.it/rooms/48167318</a>';
+
+  const lb = $("#lightbox"), lbImg = $("#lbImg"), lbCap = $("#lbCap");
+  let at = 0, lastFocus = null;
+
+  function show(i) {
+    at = (i + PHOTOS.length) % PHOTOS.length;
+    lbImg.src = PHOTOS[at].src;
+    lbImg.alt = PHOTOS[at].alt;
+    lbCap.textContent = PHOTOS[at].cap + "  ·  " + (at + 1) + " / " + PHOTOS.length;
+  }
+  function open_(i) {
+    lastFocus = document.activeElement;
+    show(i);
+    lb.hidden = false;
+    document.body.style.overflow = "hidden";
+    $("#lbClose").focus();
+  }
+  function close_() {
+    lb.hidden = true;
+    lbImg.src = "";
+    document.body.style.overflow = "";
+    if (lastFocus) lastFocus.focus();
+  }
+  $("#gallery").addEventListener("click", e => {
+    const b = e.target.closest("button[data-i]");
+    if (b) open_(+b.dataset.i);
+  });
+  $("#lbClose").addEventListener("click", close_);
+  $("#lbPrev").addEventListener("click", () => show(at - 1));
+  $("#lbNext").addEventListener("click", () => show(at + 1));
+  lb.addEventListener("click", e => { if (e.target === lb || e.target === lbImg) close_(); });
+  document.addEventListener("keydown", e => {
+    if (lb.hidden) return;
+    if (e.key === "Escape") close_();
+    else if (e.key === "ArrowLeft") show(at - 1);
+    else if (e.key === "ArrowRight") show(at + 1);
+  });
+
+  $("#notes").innerHTML = NOTES.map(n =>
+    '<div class="note block"><h3>' + esc(n.h) + "</h3><p>" + esc(n.p) + "</p></div>").join("");
+
+  /* ---- plan ------------------------------------------------ */
+  $("#days").innerHTML = PLAN.map(d =>
+    '<section class="day block"><h3>' + esc(d.day) + "<small>" + esc(d.date) + "</small></h3>" +
+    (d.note ? '<p class="daynote">' + esc(d.note) + "</p>" : "") +
+    '<ul class="slots">' + d.slots.map(s =>
+      "<li><time>" + esc(s.t) + "</time><b>" + esc(s.h) + (s.tbc ? '<span class="tbc">tbc</span>' : "") + "</b>" +
+      (s.p ? "<p>" + esc(s.p) + "</p>" : "") + "</li>").join("") +
+    "</ul></section>").join("");
+
+  /* ---- footer ---------------------------------------------- */
+  $("#foot").innerHTML =
+    "<p>" + esc(EVENT.host) + " turns thirty · " + esc(EVENT.city) + " · " + esc(EVENT.dateLabel) + "</p>" +
+    "<p>" + GUESTS.length + " people · " + cities.size + " departure points · one house</p>";
+
+  /* ---- scroll-spy ------------------------------------------ */
+  const links = Array.prototype.slice.call(document.querySelectorAll("nav a"));
+  const secs = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.removeAttribute("aria-current"));
+      const a = links[secs.indexOf(e.target)];
+      if (a) a.setAttribute("aria-current", "true");
+    });
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  secs.forEach(s => io.observe(s));
+})();
+</script>

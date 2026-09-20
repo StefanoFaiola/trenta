@@ -1,0 +1,11 @@
+# Source data stays off the web: it holds real people's names,
+# flight numbers and arrival times. The page is built from it by hand.
+data/
+
+# Excel lock files
+~$*
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini

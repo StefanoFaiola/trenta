@@ -392,7 +392,6 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
 @media(max-width:620px){
   .gallery{gap:5px;margin-top:20px;grid-template-columns:repeat(3,minmax(0,1fr))}
   .gallery button:first-child{display:block}
-  .gallery img{aspect-ratio:1}
   .gallery span{display:none}
 }
 .gallery button{
@@ -400,7 +399,9 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
   background:var(--surface-2);cursor:pointer;font:inherit;
   clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
 }
-.gallery img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;transition:transform .45s ease}
+/* height:auto is required — the img height attribute lands as a presentational
+   hint and would otherwise override aspect-ratio and stretch the tile. */
+.gallery img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;transition:transform .45s ease}
 .gallery button:hover img,.gallery button:focus-visible img{transform:scale(1.045)}
 .gallery span{
   position:absolute;left:0;right:0;bottom:0;text-align:left;
@@ -952,9 +953,11 @@ const PLAN = [
   });
 
   /* All six render as tiles; CSS decides which are shown at this width. */
+  /* No width/height attributes: the tiles are square crops, so the CSS
+     aspect-ratio reserves the space and the attributes would only fight it. */
   $("#gallery").innerHTML = PHOTOS.map((p, i) =>
     '<button type="button" data-i="' + i + '"><img src="' + esc(p.src) + '" alt="' + esc(p.alt) +
-    '" loading="' + (i ? "lazy" : "eager") + '" width="1200" height="900"><span>' +
+    '" loading="' + (i ? "lazy" : "eager") + '"><span>' +
     esc(p.cap) + "</span></button>").join("");
 
   $("#credit").innerHTML = esc(PHOTO_CREDIT) + ' — <a href="' + esc(VENUE.listing) +

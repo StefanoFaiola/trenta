@@ -32,6 +32,7 @@
   --groc:#a8730a;
   --verd:#0d7a6c;
   --foc:#c33a26;
+  --lila:#8e3a7a;
   --accent:var(--blau);
   --chamfer:13px;
   --gutter:clamp(16px,5vw,64px);
@@ -50,6 +51,7 @@
     --groc:#e0a63a;
     --verd:#35bda8;
     --foc:#f4705a;
+    --lila:#e58bc9;
   }
 }
 :root[data-theme="dark"]{
@@ -64,6 +66,7 @@
   --groc:#e0a63a;
   --verd:#35bda8;
   --foc:#f4705a;
+  --lila:#e58bc9;
 }
 
 *{box-sizing:border-box}
@@ -310,7 +313,14 @@ section{scroll-margin-top:72px}
 .chip.solo::before{background:transparent;box-shadow:inset 0 0 0 2px var(--c)}
 
 /* ---------- groups ---------- */
-.groups{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));margin-top:26px}
+.groups{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:26px}
+@media(max-width:1020px){.groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.groups{grid-template-columns:1fr}}
+/* SOLO runs full width under the grid, so its names wrap in rows */
+#solo-card{margin-top:14px}
+.gcard.solo .gmem{flex-direction:row;flex-wrap:wrap;gap:10px 26px}
+.gcard.solo .gmem li{flex:0 1 auto;gap:9px}
+.gcard.solo .gmem span{text-align:left}
 .gcard{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column}
 .gcard .cap{height:7px;background:var(--c)}
 .gcard.solo .cap{background:repeating-linear-gradient(90deg,var(--c) 0 7px,transparent 7px 14px)}
@@ -552,6 +562,7 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
       </div>
       <p class="sec-note">The code on your line reads <b>D</b> for the day you land and <b>G</b> for the group: D1G1 comes in on Thursday, D2G1 and D2G2 on Friday. <b>SOLO</b> means you are travelling on your own and there is no shared ride waiting &mdash; message Stefano when you land.</p>
       <div class="groups" id="groups-grid"></div>
+      <div id="solo-card"></div>
     </div>
   </section>
 
@@ -689,9 +700,11 @@ const GROUPS = {
           note:"Both of you on VY6111 out of Fiumicino. Walk out together and go straight to the B&B — the villa is not open until Friday." },
   D2G1: { name:"D2G1", color:"var(--verd)", when:"Fri 9 Oct · 18:10", where:"Airport arrivals",
           note:"All three on VY6109 out of Fiumicino. Same plane, same belt, one transfer. You will be at the villa in time for dinner." },
-  D2G2: { name:"D2G2", color:"var(--foc)",  when:"Fri 9 Oct · 22:30–23:15", where:"Airport arrivals",
+  D2G2: { name:"D2G2", color:"var(--groc)", when:"Fri 9 Oct · 19:50–20:30", where:"Airport arrivals",
+          note:"Two flights forty minutes apart — Jacopo in from Fiumicino, Matilda from Bologna. Jacopo waits, then you go together." },
+  D2G3: { name:"D2G3", color:"var(--foc)",  when:"Fri 9 Oct · 22:30–23:15", where:"Airport arrivals",
           note:"Four flights landing 45 minutes apart. Whoever is out first waits — the transfer leaves once Enzo is through, around 23:15." },
-  SOLO: { name:"SOLO", color:"var(--groc)", solo:true, when:"Thu and Fri, spread out", where:"Airport, Sants or the villa",
+  SOLO: { name:"SOLO", color:"var(--lila)", solo:true, when:"Thu and Fri, spread out", where:"Airport, Sants or the villa",
           note:"No shared transfer: trains from Madrid, two cars driving up, one of you already in Barcelona, and the rest on your own schedule. Message Stefano when you are close." }
 };
 
@@ -717,12 +730,13 @@ const GUESTS = [
   { name:"Leonardo Mostarda",   from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
   { name:"Meggan Chaffey",      from:"Madrid",     cc:"ES", mode:"car",    op:"",        at:"2026-10-09T19:00", point:"Villa",   group:"SOLO" },
   { name:"Hugo Moreno",         from:"Madrid",     cc:"ES", mode:"car",    op:"",        at:"2026-10-09T19:00", point:"Villa",   group:"SOLO" },
-  { name:"Matilda Guerzoni",    from:"Bologna",    cc:"IT", mode:"flight", op:"FR8184",  at:"2026-10-09T20:30", point:"Airport", group:"SOLO" },
+  { name:"Jacopo",              from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6105",  at:"2026-10-09T19:50", point:"Airport", group:"D2G2" },
+  { name:"Matilda Guerzoni",    from:"Bologna",    cc:"IT", mode:"flight", op:"FR8184",  at:"2026-10-09T20:30", point:"Airport", group:"D2G2" },
   { name:"Pedro Moreira",       from:"Madrid",     cc:"ES", mode:"train",  op:"",        at:"2026-10-09T22:00", point:"Sants",   group:"SOLO" },
-  { name:"Lorenzo Vellini",     from:"Fiumicino",  cc:"IT", mode:"flight", op:"FR8573",  at:"2026-10-09T22:30", point:"Airport", group:"D2G2" },
-  { name:"Stefano Sansone",     from:"Berlin",     cc:"DE", mode:"flight", op:"EJU7172", at:"2026-10-09T22:45", point:"Airport", group:"D2G2" },
-  { name:"Giovanni Pierfelici", from:"Malpensa",   cc:"IT", mode:"flight", op:"",        at:"2026-10-09T22:50", point:"Airport", group:"D2G2" },
-  { name:"Enzo Mileto",         from:"Prague",     cc:"CZ", mode:"flight", op:"",        at:"2026-10-09T23:15", point:"Airport", group:"D2G2" }
+  { name:"Lorenzo Vellini",     from:"Fiumicino",  cc:"IT", mode:"flight", op:"FR8573",  at:"2026-10-09T22:30", point:"Airport", group:"D2G3" },
+  { name:"Stefano Sansone",     from:"Berlin",     cc:"DE", mode:"flight", op:"EJU7172", at:"2026-10-09T22:45", point:"Airport", group:"D2G3" },
+  { name:"Giovanni Pierfelici", from:"Malpensa",   cc:"IT", mode:"flight", op:"",        at:"2026-10-09T22:50", point:"Airport", group:"D2G3" },
+  { name:"Enzo Mileto",         from:"Prague",     cc:"CZ", mode:"flight", op:"",        at:"2026-10-09T23:15", point:"Airport", group:"D2G3" }
 ];
 
 /* -- LOCATION ------------------------------------------------- */
@@ -799,7 +813,7 @@ const PLAN = [
   const MODE = { flight: "✈", train: "▬", bus: "▭", car: "▭", local: "⌂" };
 
   /* ---- trencadis rules ------------------------------------- */
-  const TILE = ["--blau", "--groc", "--verd", "--foc", "--ink"];
+  const TILE = ["--blau", "--groc", "--verd", "--foc", "--lila", "--ink"];
   document.querySelectorAll("[data-shards]").forEach(el => {
     let s = +el.dataset.seed || 7;
     const rnd = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
@@ -918,7 +932,7 @@ const PLAN = [
   search();
 
   /* ---- groups ---------------------------------------------- */
-  $("#groups-grid").innerHTML = Object.keys(GROUPS).map(key => {
+  function groupCard(key) {
     const g = GROUPS[key], mem = guests.filter(x => x.group === key);
     return '<article class="gcard block' + (g.solo ? " solo" : "") + '" style="--c:' + g.color + '"><div class="cap"></div><div class="gin">' +
       "<h3>" + esc(g.name) + '</h3><p class="gmeaning">' + esc(g.note) + "</p>" +
@@ -929,7 +943,13 @@ const PLAN = [
         "<li><b>" + esc(m.name) + "</b><span>" + esc(m.from) + "<br>" +
         esc(shortFmt.format(new Date(m.at))) + " · " + m.at.slice(11, 16) + "</span></li>").join("") +
       "</ul></div></article>";
-  }).join("");
+  }
+
+  /* The shared rides tile across; SOLO is not one, so it sits full width
+     below them rather than making a lonely fifth card. */
+  const keys = Object.keys(GROUPS);
+  $("#groups-grid").innerHTML = keys.filter(k => !GROUPS[k].solo).map(groupCard).join("");
+  $("#solo-card").innerHTML = keys.filter(k => GROUPS[k].solo).map(groupCard).join("");
 
   /* ---- location -------------------------------------------- */
   $("#venue").innerHTML = '<p class="eyebrow">' + esc(VENUE.kind) + "</p><h3>" + esc(VENUE.name) + "</h3>" +

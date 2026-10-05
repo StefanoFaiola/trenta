@@ -679,11 +679,11 @@ const GROUPS = {
   D1G1: { name:"D1G1", color:"var(--blau)", when:"Thu 8 Oct · 23:45", where:"Airport arrivals",
           note:"Both of you on VY6111 out of Fiumicino. Walk out together and go straight to the B&B — the villa is not open until Friday." },
   D2G1: { name:"D2G1", color:"var(--verd)", when:"Fri 9 Oct · 18:10", where:"Airport arrivals",
-          note:"All four on VY6109 out of Fiumicino. Same plane, same belt, one transfer. You will be at the villa in time for dinner." },
+          note:"All three on VY6109 out of Fiumicino. Same plane, same belt, one transfer. You will be at the villa in time for dinner." },
   D2G2: { name:"D2G2", color:"var(--foc)",  when:"Fri 9 Oct · 22:30–23:15", where:"Airport arrivals",
           note:"Four flights landing 45 minutes apart. Whoever is out first waits — the transfer leaves once Enzo is through, around 23:15." },
-  SOLO: { name:"SOLO", color:"var(--groc)", solo:true, when:"Four different times", where:"Airport or Sants",
-          note:"No shared transfer: you are arriving on your own. Message Stefano when you land and he will sort out how you get across." }
+  SOLO: { name:"SOLO", color:"var(--groc)", solo:true, when:"Thu and Fri, spread out", where:"Airport, Sants or the villa",
+          note:"No shared transfer: trains from Madrid, two cars driving up, one of you already in Barcelona, and the rest on your own schedule. Message Stefano when you are close." }
 };
 
 /* -- PARTICIPANTS ---------------------------------------------
@@ -701,16 +701,19 @@ const GUESTS = [
   { name:"Stefano Quercio",     from:"Madrid",     cc:"ES", mode:"train",  op:"",        at:"2026-10-08T21:44", point:"Sants",   group:"SOLO" },
   { name:"Ilaria Coppola",      from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6111",  at:"2026-10-08T23:45", point:"Airport", group:"D1G1" },
   { name:"Caterina Squarcia",   from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6111",  at:"2026-10-08T23:45", point:"Airport", group:"D1G1" },
-  { name:"Mattia Gagliardi",    from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
+  { name:"Angela Zamora",       from:"Madrid",     cc:"ES", mode:"train",  op:"",        at:"2026-10-09T16:45", point:"Sants",   group:"SOLO" },
+  { name:"Niels Amaral",        from:"Barcelona",  cc:"ES", mode:"local",  op:"",        at:"2026-10-09T18:00", point:"Villa",   group:"SOLO" },
   { name:"Marco Ciampini",      from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
   { name:"Federica Faiola",     from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
   { name:"Leonardo Mostarda",   from:"Fiumicino",  cc:"IT", mode:"flight", op:"VY6109",  at:"2026-10-09T18:10", point:"Airport", group:"D2G1" },
+  { name:"Meggan Chaffey",      from:"Madrid",     cc:"ES", mode:"car",    op:"",        at:"2026-10-09T19:00", point:"Villa",   group:"SOLO" },
+  { name:"Hugo Moreno",         from:"Madrid",     cc:"ES", mode:"car",    op:"",        at:"2026-10-09T19:00", point:"Villa",   group:"SOLO" },
   { name:"Matilda Guerzoni",    from:"Bologna",    cc:"IT", mode:"flight", op:"FR8184",  at:"2026-10-09T20:30", point:"Airport", group:"SOLO" },
   { name:"Pedro Moreira",       from:"Madrid",     cc:"ES", mode:"train",  op:"",        at:"2026-10-09T22:00", point:"Sants",   group:"SOLO" },
   { name:"Lorenzo Vellini",     from:"Fiumicino",  cc:"IT", mode:"flight", op:"FR8573",  at:"2026-10-09T22:30", point:"Airport", group:"D2G2" },
   { name:"Stefano Sansone",     from:"Berlin",     cc:"DE", mode:"flight", op:"EJU7172", at:"2026-10-09T22:45", point:"Airport", group:"D2G2" },
   { name:"Giovanni Pierfelici", from:"Malpensa",   cc:"IT", mode:"flight", op:"",        at:"2026-10-09T22:50", point:"Airport", group:"D2G2" },
-  { name:"Enzo Guerzoni",       from:"Prague",     cc:"CZ", mode:"flight", op:"",        at:"2026-10-09T23:15", point:"Airport", group:"D2G2" }
+  { name:"Enzo Mileto",         from:"Prague",     cc:"CZ", mode:"flight", op:"",        at:"2026-10-09T23:15", point:"Airport", group:"D2G2" }
 ];
 
 /* -- LOCATION ------------------------------------------------- */
@@ -757,7 +760,7 @@ const PLAN = [
     { t:"morning", h:"Work",             tbc:false, p:"For those who came on Thursday: laptops out, it is still a working day." },
     { t:"14:00", h:"Check-in at the villa", tbc:false, p:"N-II, 11. Rooms, keys, and first claim on the good beds." },
     { t:"afternoon", h:"Work, pool, or sea", tbc:false, p:"Whichever you can justify. The steps go straight down to the water." },
-    { t:"18:10", h:"D2G1 lands",         tbc:false, p:"Four of them on the same plane out of Fiumicino." },
+    { t:"18:10", h:"D2G1 lands",         tbc:false, p:"Three of them on the same plane out of Fiumicino." },
     { t:"20:00", h:"Ready for dinner",   tbc:true,  p:"Cleaned up and downstairs, ready to meet people as they turn up." },
     { t:"21:00", h:"Easy dinner",        tbc:true,  p:"Deliberately loose — everyone lands at a different time and the last group is not in until 23:15. Eat when you can, stay at the table." }
   ]},
@@ -784,7 +787,7 @@ const PLAN = [
 (function () {
   const $ = (s, r) => (r || document).querySelector(s);
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const MODE = { flight: "✈", train: "▬", bus: "▭", car: "▯" };
+  const MODE = { flight: "✈", train: "▬", bus: "▭", car: "▭", local: "⌂" };
 
   /* ---- trencadis rules ------------------------------------- */
   const TILE = ["--blau", "--groc", "--verd", "--foc", "--ink"];
@@ -845,6 +848,8 @@ const PLAN = [
   function how(g) {
     if (g.op) return MODE[g.mode] + " <b>" + esc(g.op) + "</b>";
     if (g.mode === "train") return MODE.train + " <b>Train</b>";
+    if (g.mode === "car") return MODE.car + " <b>Driving up</b>";
+    if (g.mode === "local") return MODE.local + " <b>Already here</b>";
     return MODE[g.mode] + ' <b style="color:var(--ink-3)">number to come</b>';
   }
 

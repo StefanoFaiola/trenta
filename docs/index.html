@@ -156,12 +156,12 @@ nav a[aria-current="true"]{color:var(--plaster)}
 nav a[aria-current="true"]::before{background:var(--ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 /* On a phone the wordmark is right below, so the bar can drop its mark and
-   give the six links enough room to sit on screen without scrolling. */
+   give the seven links enough room to sit on screen without scrolling. */
 @media(max-width:600px){
   .brand{display:none}
   .topbar-in{gap:0}
   nav{margin-inline:auto}
-  nav a{padding:10px 6px;letter-spacing:.03em;font-size:11px}
+  nav a{padding:10px 4px;letter-spacing:0;font-size:11px}
 }
 
 /* ---------- shell ---------- */
@@ -510,6 +510,27 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
   font:italic 400 13.5px/1.55 Literata,serif;color:var(--ink-2);
 }
 
+/* ---------- menu ---------- */
+/* Three sittings side by side, read left to right like the day itself */
+.sittings{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:26px}
+@media(max-width:940px){.sittings{grid-template-columns:1fr}}
+.sitting{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line), inset 0 6px 0 0 var(--c);padding:22px 20px 20px;min-width:0}
+.sitting .when{font:600 12px/1 "IBM Plex Mono",monospace;letter-spacing:.12em;color:var(--c)}
+.sitting h3{font-size:24px;margin-top:8px}
+.sitting .lede{font:400 13.5px/1.55 Literata,serif;color:var(--ink-2);margin-top:8px}
+.course{margin-top:18px}
+.course h4{margin:0 0 7px;font:500 10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.course ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.course li{font:400 14px/1.45 Literata,serif;color:var(--ink-2)}
+.course li b{font:600 14.5px/1.3 "Bricolage Grotesque",sans-serif;color:var(--ink)}
+.course li.star b{color:var(--c)}
+.bar-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin-top:40px}
+.bar-head h3{font-size:clamp(22px,3vw,28px)}
+.bar{display:grid;gap:1px;background:var(--line);grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:14px}
+.bar div{background:var(--surface);padding:14px 16px}
+.bar b{display:block;font:600 15px/1.3 "Bricolage Grotesque",sans-serif}
+.bar span{display:block;margin-top:4px;font:400 11.5px/1.5 "IBM Plex Mono",monospace;color:var(--ink-3)}
+
 /* ---------- know-before ---------- */
 .notes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-top:34px}
 .note{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:18px 20px}
@@ -540,6 +561,7 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
       <a href="#rooms">Rooms</a>
       <a href="#where">Where</a>
       <a href="#plan">Plan</a>
+      <a href="#menu">Menu</a>
     </nav>
   </div>
 </header>
@@ -709,6 +731,22 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
     </div>
   </section>
 
+  <div class="wrap"><div class="shards" data-shards data-seed="97" aria-hidden="true"></div></div>
+
+  <!-- ============== 7. MENU ============== -->
+  <section id="menu" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Saturday's menu</h2>
+        <p class="eyebrow cat">El men&uacute;</p>
+      </div>
+      <p class="sec-note">Three sittings, one long day of eating. Brunch to carry you to the aperitivo, three wines and a cocktail bar at six, then an Italian barbecue at the long table.</p>
+      <div class="sittings" id="sittings"></div>
+      <div class="bar-head"><h3>The bar</h3><p class="eyebrow cat">Open from 18:45</p></div>
+      <div class="bar" id="bar"></div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
@@ -851,6 +889,89 @@ const DAY_GUESTS = {
     { name:"Beril's friend", lunch:true, dinner:true }
   ]
 };
+
+/* -- MENU ----------------------------------------------------
+   Saturday 10 Oct, from the menu doc. Guest-facing only: no
+   quantities or prep. A third entry of true highlights the dish.
+   ------------------------------------------------------------- */
+const MENU = [
+  { when:"12:30", name:"Brunch", color:"var(--groc)",
+    lede:"A long Mediterranean spread with a Spanish and Mexican streak. Nothing else to eat until six.",
+    courses:[
+      { h:"From the kitchen", items:[
+        ["Tortilla de patatas", "two big ones, at room temperature", true],
+        ["Patate schiacciate", "crispy smashed potatoes, rosemary, alioli"],
+        ["Frittata al forno", "courgette, mint and pecorino"],
+        ["Uova strapazzate", "scrambled eggs with chives"],
+        ["Pa amb tomàquet", "toasted coca, tomato, garlic, olive oil"],
+        ["Avocado toast", "lime, chilli flakes, flaky salt"] ]},
+      { h:"On boards", items:[
+        ["Guacamole", "with totopos"],
+        ["Tuna and beans", "bonito del norte, cannellini, red onion, lemon"],
+        ["Prosciutto and jamón serrano", "with melon"],
+        ["Burrata and stracciatella", "cherry tomatoes and basil"],
+        ["Smoked salmon", "lemon and capers"],
+        ["Fruit", "figs, grapes, melon"] ]},
+      { h:"Sweet and to drink", items:[
+        ["Cornetti and croissants", ""],
+        ["Greek yogurt", "honey, granola, berries"],
+        ["Orange juice, coffee, tea", ""],
+        ["Mimosas and Bellini", "for anyone starting early"] ]}
+    ]},
+  { when:"18:00", name:"Aperitivo & wine tasting", color:"var(--verd)",
+    lede:"Three of Stefano's wines, poured lightest to fullest, then the bar opens.",
+    courses:[
+      { h:"Stuzzichini", items:[
+        ["Taralli, grissini, Marcona almonds", ""],
+        ["Warm olives", "Castelvetrano and Gaeta, orange peel, fennel seed"],
+        ["Tagliere", "salame Milano, mortadella with pistachio, fuet, coppa"],
+        ["Cheese board", "Parmigiano 24 months, pecorino with honey, Manchego"],
+        ["Focaccia genovese", ""],
+        ["Crostini", "nduja and stracciatella; mushroom and thyme"],
+        ["Padrón peppers", "blistered on the grill", true] ]},
+      { h:"The tasting, 18:00–18:45", items:[
+        ["Three wines", "one glass each, with two lines on every bottle"] ]}
+    ]},
+  { when:"21:00", name:"Grigliata all'italiana", color:"var(--foc)",
+    lede:"Italian barbecue, family style at the long table. The grill goes out in waves, so pace yourself.",
+    courses:[
+      { h:"Antipasti", items:[
+        ["Bruschette", "tomato and basil; cannellini and rosemary"],
+        ["Provola alla piastra", "smoked provola, melted, oregano"],
+        ["Verdure grigliate", "aubergine, courgette, peppers, mint"] ]},
+      { h:"From the grill", items:[
+        ["Arrosticini", "Abruzzo lamb skewers, salt only", true],
+        ["Pancetta alla griglia", "thick and crisp"],
+        ["Bombette pugliesi", "pork rolls with caciocavallo and pancetta", true],
+        ["Salsiccia", "luganega with fennel"],
+        ["Costine", "pork ribs, rosemary and garlic"],
+        ["Pollo alla diavola", "chilli, lemon, garlic"],
+        ["Tagliata", "on rocket, Parmigiano, balsamic"] ]},
+      { h:"Contorni", items:[
+        ["Patate al forno", "rosemary and garlic"],
+        ["Insalata mista", "fennel, orange, red onion"],
+        ["Salsa verde and salmoriglio", "for the meat"] ]},
+      { h:"Dolce", items:[
+        ["Pizza e Nutella", "the birthday cake, candles and all", true],
+        ["Tiramisù", ""],
+        ["Coffee, limoncello and amaro", ""] ]}
+    ]}
+];
+
+const BAR = [
+  ["Aperol spritz",     "prosecco, Aperol, soda"],
+  ["Campari spritz",    "prosecco, Campari, soda"],
+  ["Hugo spritz",       "prosecco, elderflower, mint, lime"],
+  ["Americano",         "Campari, sweet vermouth, soda"],
+  ["Negroni sbagliato", "Campari, sweet vermouth, prosecco"],
+  ["Mojito",            "white rum, lime, mint, sugar, soda"],
+  ["Dark ’n’ Stormy",   "dark rum, ginger beer, lime"],
+  ["Spicy Margarita",   "tequila, lime, triple sec, agave, jalapeño"],
+  ["Negroni",           "gin, Campari, sweet vermouth · after dinner"],
+  ["Gin tonic",         "Spanish-style, in a copa"],
+  ["Wine and beer",     "Stefano’s wines, Estrella Damm, Peroni"],
+  ["Alcohol-free",      "Crodino spritz, water, juice"]
+];
 
 /* -- LOCATION ------------------------------------------------- */
 const VENUE = {
@@ -1194,6 +1315,15 @@ const PLAN = [
       "<li><time>" + esc(s.t) + "</time><b>" + esc(s.h) + (s.tbc ? '<span class="tbc">tbc</span>' : "") + "</b>" +
       (s.p ? "<p>" + esc(s.p) + "</p>" : "") + "</li>").join("") +
     "</ul></section>").join("");
+
+  /* ---- menu ------------------------------------------------ */
+  $("#sittings").innerHTML = MENU.map(m =>
+    '<article class="sitting block" style="--c:' + m.color + '"><p class="when">Sat 10 Oct · ' + esc(m.when) + "</p>" +
+    "<h3>" + esc(m.name) + '</h3><p class="lede">' + esc(m.lede) + "</p>" +
+    m.courses.map(c => '<div class="course"><h4>' + esc(c.h) + "</h4><ul>" + c.items.map(it =>
+      "<li" + (it[2] ? ' class="star"' : "") + "><b>" + esc(it[0]) + "</b>" + (it[1] ? " · " + esc(it[1]) : "") + "</li>").join("") +
+      "</ul></div>").join("") + "</article>").join("");
+  $("#bar").innerHTML = BAR.map(b => "<div><b>" + esc(b[0]) + "</b><span>" + esc(b[1]) + "</span></div>").join("");
 
   /* ---- footer ---------------------------------------------- */
   $("#foot").innerHTML =

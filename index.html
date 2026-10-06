@@ -528,8 +528,8 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
       <a href="#top">Start</a>
       <a href="#arrivals">Arrivals</a>
       <a href="#groups">Transfers</a>
-      <a href="#where">Where</a>
       <a href="#rooms">Rooms</a>
+      <a href="#where">Where</a>
       <a href="#plan">Plan</a>
     </nav>
   </div>
@@ -565,7 +565,7 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
         <h2>Arrivals board</h2>
         <p class="eyebrow cat">Qui arriba quan</p>
       </div>
-      <p class="sec-note">Everyone lands across Thursday and Friday. Find your line, note your transfer code. It tells you who you are travelling over with.</p>
+      <p class="sec-note">Everyone staying lands across Thursday and Friday; the day guests come on Saturday. Find your line, note your transfer code. It tells you who you are travelling over with.</p>
 
       <div class="lookup">
         <label class="eyebrow" for="lookup" style="flex:none">Your name</label>
@@ -596,7 +596,22 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
 
   <div class="wrap"><div class="shards" data-shards data-seed="41" aria-hidden="true"></div></div>
 
-  <!-- ============== 4. LOCATION ============== -->
+  <!-- ============== 4. ROOMS ============== -->
+  <section id="rooms" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Who sleeps where</h2>
+        <p class="eyebrow cat">On es dorm</p>
+      </div>
+      <p class="sec-note">Every room has a job title. Find your name, read the note, and take any complaints to the relevant department.</p>
+      <div id="floors"></div>
+      <div id="dayguests"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="shards" data-shards data-seed="73" aria-hidden="true"></div></div>
+
+  <!-- ============== 5. LOCATION ============== -->
   <section id="where" class="sec">
     <div class="wrap">
       <div class="sec-head">
@@ -671,21 +686,6 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
   </section>
 
   <div class="wrap"><div class="shards" data-shards data-seed="59" aria-hidden="true"></div></div>
-
-  <!-- ============== 5. ROOMS ============== -->
-  <section id="rooms" class="sec">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Who sleeps where</h2>
-        <p class="eyebrow cat">On es dorm</p>
-      </div>
-      <p class="sec-note">Every room has a job title. Find your name, read the note, and take any complaints to the relevant department.</p>
-      <div id="floors"></div>
-      <div id="dayguests"></div>
-    </div>
-  </section>
-
-  <div class="wrap"><div class="shards" data-shards data-seed="73" aria-hidden="true"></div></div>
 
   <!-- ============== 6. PLAN ============== -->
   <section id="plan" class="sec">
@@ -824,9 +824,12 @@ const ROOMS = [
 /* -- DAY GUESTS ----------------------------------------------
    From data/non_sleeping_guests.xlsx: here for Saturday, not
    sleeping over. lunch / dinner = staying for that meal.
+   at = arrival, local time. They also get a line on the
+   arrivals board, tagged DAY, so the board tracks everyone.
    ------------------------------------------------------------- */
 const DAY_GUESTS = {
   arrive: "Saturday 10 Oct · 12:00",
+  at:     "2026-10-10T12:00",
   people: [
     { name:"Beril",          lunch:true, dinner:true },
     { name:"Esmee",          lunch:true, dinner:true },
@@ -835,6 +838,7 @@ const DAY_GUESTS = {
     { name:"Lois",           lunch:true, dinner:true },
     { name:"Renske",         lunch:true, dinner:true },
     { name:"Caroline",       lunch:true, dinner:true },
+    { name:"Claudia",        lunch:true, dinner:true },
     { name:"Beril's friend", lunch:true, dinner:true }
   ]
 };
@@ -934,7 +938,8 @@ const PLAN = [
   const cities = new Set(GUESTS.map(g => g.from));
   const countries = new Set(GUESTS.map(g => g.cc));
   $("#stats").innerHTML =
-    "<span><b>" + GUESTS.length + "</b> arriving</span>" +
+    "<span><b>" + GUESTS.length + "</b> staying</span>" +
+    "<span><b>" + DAY_GUESTS.people.length + "</b> day guests</span>" +
     "<span><b>" + cities.size + "</b> origins</span>" +
     "<span><b>" + countries.size + "</b> countries</span>" +
     "<span><b>" + Object.keys(GROUPS).filter(k => !GROUPS[k].solo).length + "</b> transfers</span>" +
@@ -958,12 +963,20 @@ const PLAN = [
   setInterval(tick, 20000);
 
   /* ---- arrivals board -------------------------------------- */
-  const guests = GUESTS.slice().sort((a, b) => a.at.localeCompare(b.at));
+  /* Day guests ride on the board too, under a DAY tag that has no
+     transfer card of its own: not a ride, just a way to track them. */
+  const DAY_GROUP = { name:"Day", color:"var(--verd)", solo:true, day:true,
+    note:"You are here for the day, not sleeping over. Come straight to the villa: N-II, 11, Mataró." };
+  const meals = p => [p.lunch && "lunch", p.dinner && "dinner"].filter(Boolean).join(" + ");
+  const dayRows = DAY_GUESTS.people.map(p => ({ name:p.name, from:"Day guest", cc:"", mode:"day", op:"",
+    at:DAY_GUESTS.at, point:"Villa", group:"DAY", meals:meals(p) }));
+  const groupOf = key => GROUPS[key] || (key === "DAY" ? DAY_GROUP : null);
+  const guests = GUESTS.concat(dayRows).sort((a, b) => a.at.localeCompare(b.at));
   const dayFmt = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" });
   const shortFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric" });
 
   function chip(key) {
-    const g = GROUPS[key];
+    const g = groupOf(key);
     if (!g) return "";
     return '<span class="chip' + (g.solo ? " solo" : "") + '" style="--c:' + g.color + '">' + esc(g.name) + "</span>";
   }
@@ -973,6 +986,7 @@ const PLAN = [
     if (g.mode === "train") return MODE.train + " <b>Train</b>";
     if (g.mode === "car") return MODE.car + " <b>Driving up</b>";
     if (g.mode === "local") return MODE.local + " <b>Already here</b>";
+    if (g.mode === "day") return MODE.local + " <b>Not sleeping</b> · " + esc(g.meals);
     return MODE[g.mode] + ' <b style="color:var(--ink-3)">number to come</b>';
   }
 
@@ -989,7 +1003,7 @@ const PLAN = [
     }
     rowsHTML += '<div class="row" role="row" data-i="' + i + '" data-name="' + esc(g.name.toLowerCase()) + '">' +
       '<div class="c-time">' + g.at.slice(11, 16) + "</div>" +
-      '<div class="c-who"><b>' + esc(g.name) + "</b><span>" + esc(g.from) + " · " + esc(g.cc) + "</span></div>" +
+      '<div class="c-who"><b>' + esc(g.name) + "</b><span>" + esc(g.from) + (g.cc ? " · " + esc(g.cc) : "") + "</span></div>" +
       '<div class="c-how">' + how(g) + "</div>" +
       '<div class="c-at">' + esc(g.point) + "</div>" +
       '<div class="c-grp">' + chip(g.group) + "</div></div>";
@@ -1012,16 +1026,17 @@ const PLAN = [
     });
     out.textContent = q ? shown + " of " + rows.length + " shown" : rows.length + " arrivals";
     if (q && shown === 1) {
-      const g = guests[+hit.dataset.i], gr = GROUPS[g.group] || {};
+      const g = guests[+hit.dataset.i], gr = groupOf(g.group) || {};
       const col = gr.color || "var(--accent)";
       pass.hidden = false;
       pass.innerHTML = '<div class="pass block" style="--c:' + col + '">' +
-        '<div><p class="eyebrow">' + (gr.solo ? "You are travelling" : "Your transfer group") + '</p><h3 style="color:' + col + '">' +
-        esc(gr.name || "—") + "</h3>" +
+        '<div><p class="eyebrow">' + (gr.day ? "You are a" : gr.solo ? "You are travelling" : "Your transfer group") + '</p><h3 style="color:' + col + '">' +
+        esc(gr.day ? "Day guest" : gr.name || "—") + "</h3>" +
         '<p style="color:var(--ink-2);margin-top:8px;max-width:46ch">' + esc(gr.note || "") + "</p></div>" +
-        '<dl class="pl"><div><dt>Lands</dt><dd>' + esc(dayFmt.format(new Date(g.at))) + " · " + g.at.slice(11, 16) + "</dd></div>" +
+        '<dl class="pl"><div><dt>' + (g.mode === "day" ? "Arrives" : "Lands") + "</dt><dd>" + esc(dayFmt.format(new Date(g.at))) + " · " + g.at.slice(11, 16) + "</dd></div>" +
         "<div><dt>From</dt><dd>" + esc(g.from) + "</dd></div>" +
-        "<div><dt>On</dt><dd>" + esc(g.op || (g.mode === "train" ? "Train" : "to come")) + "</dd></div>" +
+        (g.mode === "day" ? "<div><dt>Staying for</dt><dd>" + esc(g.meals) + "</dd></div>" :
+          "<div><dt>On</dt><dd>" + esc(g.op || (g.mode === "train" ? "Train" : "to come")) + "</dd></div>") +
         "<div><dt>Meet at</dt><dd>" + esc(g.point) + "</dd></div>" +
         (roomOf[g.name] ? '<div><dt>Sleeps in</dt><dd><a href="#rooms">' + esc(roomOf[g.name].name) + "</a></dd></div>" : "") +
         (g.back ? "<div><dt>Heads home</dt><dd>" + esc(g.back) + "</dd></div>" : "") +
@@ -1153,7 +1168,7 @@ const PLAN = [
   }).join("");
 
   /* Day guests: one full-width card, names wrapping in rows like SOLO */
-  const dg = DAY_GUESTS.people, meals = p => [p.lunch && "lunch", p.dinner && "dinner"].filter(Boolean).join(" + ");
+  const dg = DAY_GUESTS.people;
   const allSame = dg.every(p => meals(p) === meals(dg[0]));
   $("#dayguests").innerHTML = '<div class="floor"><div class="floorbar">Not sleeping over<span>' + dg.length +
     (dg.length === 1 ? " person" : " people") + '</span></div>' +
@@ -1174,7 +1189,7 @@ const PLAN = [
   /* ---- footer ---------------------------------------------- */
   $("#foot").innerHTML =
     "<p>" + esc(EVENT.host) + " turns thirty · " + esc(EVENT.city) + " · " + esc(EVENT.dateLabel) + "</p>" +
-    "<p>" + GUESTS.length + " people · " + cities.size + " departure points · one house</p>";
+    "<p>" + (GUESTS.length + DAY_GUESTS.people.length) + " people · " + cities.size + " departure points · one house</p>";
 
   /* ---- scroll-spy ------------------------------------------ */
   const links = Array.prototype.slice.call(document.querySelectorAll("nav a"));

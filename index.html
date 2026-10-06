@@ -494,6 +494,8 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
 }
 .room ul{list-style:none;margin:14px 0;padding:0;display:flex;flex-direction:column;gap:5px}
 .room li{font:600 15px/1.3 "Bricolage Grotesque",sans-serif}
+.daycard ul{flex-direction:row;flex-wrap:wrap;gap:8px 26px}
+.daycard small{font:400 11px "IBM Plex Mono",monospace;color:var(--ink-3)}
 .room blockquote{
   margin:0;padding-top:12px;border-top:1px solid var(--line);
   font:italic 400 13.5px/1.55 Literata,serif;color:var(--ink-2);
@@ -679,6 +681,7 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
       </div>
       <p class="sec-note">Every room has a job title. Find your name, read the note, and take any complaints to the relevant department.</p>
       <div id="floors"></div>
+      <div id="dayguests"></div>
     </div>
   </section>
 
@@ -817,6 +820,24 @@ const ROOMS = [
     people:["Meggan Chaffey", "Hugo Moreno"],
     note:"We can find a proper arrangement. You will be fine." }
 ];
+
+/* -- DAY GUESTS ----------------------------------------------
+   From data/non_sleeping_guests.xlsx: here for Saturday, not
+   sleeping over. lunch / dinner = staying for that meal.
+   ------------------------------------------------------------- */
+const DAY_GUESTS = {
+  arrive: "Saturday 10 Oct · 12:00",
+  people: [
+    { name:"Beril",          lunch:true, dinner:true },
+    { name:"Esmee",          lunch:true, dinner:true },
+    { name:"Fleur",          lunch:true, dinner:true },
+    { name:"Lara",           lunch:true, dinner:true },
+    { name:"Lois",           lunch:true, dinner:true },
+    { name:"Renske",         lunch:true, dinner:true },
+    { name:"Caroline",       lunch:true, dinner:true },
+    { name:"Beril's friend", lunch:true, dinner:true }
+  ]
+};
 
 /* -- LOCATION ------------------------------------------------- */
 const VENUE = {
@@ -1130,6 +1151,16 @@ const PLAN = [
         "<blockquote>" + esc(r.note) + "</blockquote></article>").join("") +
       "</div></div>";
   }).join("");
+
+  /* Day guests: one full-width card, names wrapping in rows like SOLO */
+  const dg = DAY_GUESTS.people, meals = p => [p.lunch && "lunch", p.dinner && "dinner"].filter(Boolean).join(" + ");
+  const allSame = dg.every(p => meals(p) === meals(dg[0]));
+  $("#dayguests").innerHTML = '<div class="floor"><div class="floorbar">Not sleeping over<span>' + dg.length +
+    (dg.length === 1 ? " person" : " people") + '</span></div>' +
+    '<article class="room daycard block free" style="--c:var(--verd)"><p class="zone">Day guests</p><h3>Saturday crew</h3>' +
+    '<span class="bed">Arriving ' + esc(DAY_GUESTS.arrive) + (allSame ? " · staying for " + esc(meals(dg[0])) : "") + "</span>" +
+    "<ul>" + dg.map(p => "<li>" + esc(p.name) + (allSame ? "" : " <small>" + esc(meals(p)) + "</small>") + "</li>").join("") + "</ul>" +
+    "<blockquote>No bed, no problem. Here for brunch, the wine tasting and the barbecue, and home whenever the night says so.</blockquote></article></div>";
 
   /* ---- plan ------------------------------------------------ */
   $("#days").innerHTML = PLAN.map(d =>

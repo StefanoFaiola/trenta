@@ -27,6 +27,7 @@ Everything you change lives in one marked block near the bottom of
 | `EVENT`   | name, dates, the opening line |
 | `GROUPS`  | transfer groups — `D1G1`, `D2G1`, `D2G2`, `SOLO` |
 | `GUESTS`  | one row per person, from the Arrival sheet |
+| `ROOMS`   | who sleeps where, from the Room Plan sheet — names must match `GUESTS` |
 | `VENUE`   | address, coordinates, check-in / check-out, map + listing links |
 | `NOTES`   | the four practical cards |
 | `PHOTOS`  | gallery; the first entry is the big lead image |

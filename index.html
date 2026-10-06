@@ -147,11 +147,12 @@ nav a[aria-current="true"]{color:var(--plaster)}
 nav a[aria-current="true"]::before{background:var(--ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 /* On a phone the wordmark is right below, so the bar can drop its mark and
-   give the five links enough room to sit on screen without scrolling. */
+   give the six links enough room to sit on screen without scrolling. */
 @media(max-width:600px){
   .brand{display:none}
   .topbar-in{gap:0}
-  nav a{padding:10px 9px;letter-spacing:.05em}
+  nav{margin-inline:auto}
+  nav a{padding:10px 6px;letter-spacing:.03em;font-size:11px}
 }
 
 /* ---------- shell ---------- */
@@ -465,6 +466,39 @@ svg.map{display:block;width:100%;height:auto;max-width:100%}
   padding:4px 6px;margin-left:7px;vertical-align:2px;white-space:nowrap;
 }
 
+/* ---------- rooms ---------- */
+.floor{margin-top:30px}
+.floor:first-child{margin-top:26px}
+.floorbar{
+  display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+  padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:14px;
+  font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.18em;text-transform:uppercase;
+}
+.floorbar span{color:var(--ink-3);font-weight:400}
+.rooms{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.room{
+  background:var(--surface);padding:20px 20px 20px;display:flex;flex-direction:column;
+  box-shadow:inset 0 0 0 1px var(--line), inset 0 6px 0 0 var(--c);
+}
+/* Bedless: dashed cap, same as SOLO — no room of their own */
+.room.free{
+  box-shadow:inset 0 0 0 1px var(--line);
+  background:repeating-linear-gradient(90deg,var(--c) 0 7px,transparent 7px 14px) top/100% 6px no-repeat,var(--surface);
+}
+.room .zone{font:500 10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.room h3{font-size:24px;margin-top:6px;color:var(--c)}
+.room .bed{
+  align-self:flex-start;margin-top:10px;
+  font:500 10px/1.3 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;
+  padding:6px 9px;color:var(--ink-2);background:var(--surface-2);
+}
+.room ul{list-style:none;margin:14px 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.room li{font:600 15px/1.3 "Bricolage Grotesque",sans-serif}
+.room blockquote{
+  margin:0;padding-top:12px;border-top:1px solid var(--line);
+  font:italic 400 13.5px/1.55 Literata,serif;color:var(--ink-2);
+}
+
 /* ---------- know-before ---------- */
 .notes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin-top:34px}
 .note{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:18px 20px}
@@ -493,6 +527,7 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
       <a href="#arrivals">Arrivals</a>
       <a href="#groups">Transfers</a>
       <a href="#where">Where</a>
+      <a href="#rooms">Rooms</a>
       <a href="#plan">Plan</a>
     </nav>
   </div>
@@ -635,7 +670,21 @@ footer{padding-block:44px 56px;border-top:1px solid var(--line);margin-top:20px}
 
   <div class="wrap"><div class="shards" data-shards data-seed="59" aria-hidden="true"></div></div>
 
-  <!-- ============== 5. PLAN ============== -->
+  <!-- ============== 5. ROOMS ============== -->
+  <section id="rooms" class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Who sleeps where</h2>
+        <p class="eyebrow cat">On es dorm</p>
+      </div>
+      <p class="sec-note">Every room has a job title. Find your name, read the note, and take any complaints to the relevant department.</p>
+      <div id="floors"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="shards" data-shards data-seed="73" aria-hidden="true"></div></div>
+
+  <!-- ============== 6. PLAN ============== -->
   <section id="plan" class="sec">
     <div class="wrap">
       <div class="sec-head">
@@ -728,6 +777,45 @@ const GUESTS = [
   { name:"Stefano Sansone",     from:"Berlin",     cc:"DE", mode:"flight", op:"EJU7172", at:"2026-10-09T22:45", point:"Airport", group:"D2G3" },
   { name:"Giovanni Pierfelici", from:"Malpensa",   cc:"IT", mode:"flight", op:"",        at:"2026-10-09T22:50", point:"Airport", group:"D2G3" },
   { name:"Enzo Mileto",         from:"Prague",     cc:"CZ", mode:"flight", op:"",        at:"2026-10-09T23:15", point:"Airport", group:"D2G3" }
+];
+
+/* -- ROOMS ---------------------------------------------------
+   From data/Room Plan.xlsx. Names must match GUESTS exactly so
+   the name search can tell each person their room.
+     zone : sets the card colour (see ZONE_C below)
+     free : true for the people without a bed of their own
+   ------------------------------------------------------------- */
+const ROOMS = [
+  { floor:"Ground floor", zone:"",             name:"Ground Operations", bed:"Two singles",
+    people:["Pedro Moreira", "Stefano Bertaccini"],
+    note:"I think you will get along. If not, I am bringing boxing gloves." },
+  { floor:"First floor",  zone:"Suite zone",   name:"CEO",               bed:"King",
+    people:["Stefano Faiola", "Federica Faiola"],
+    note:"Brother and sister, but happy to sleep alone." },
+  { floor:"First floor",  zone:"Suite zone",   name:"CFO",               bed:"Queen",
+    people:["Stefano Quercio", "Angela Zamora"],
+    note:"Lovely couple." },
+  { floor:"First floor",  zone:"Suite zone",   name:"COO",               bed:"Queen",
+    people:["Caterina Squarcia", "Ilaria Coppola"],
+    note:"LUISS students with high standards of living, used to big beds and fresh breakfast service every morning. Could not be assigned a single bed. Book an appointment with them if you want to offer a swap." },
+  { floor:"First floor",  zone:"Central zone", name:"Product Design",    bed:"Two singles",
+    people:["Giovanni Pierfelici", "Lorenzo Vellini"],
+    note:"I think you will get along. If not, I am bringing boxing gloves." },
+  { floor:"First floor",  zone:"Left zone",    name:"Go To Market",      bed:"Queen",
+    people:["Matilda Guerzoni", "Enzo Mileto"],
+    note:"Lovely couple, living in different countries. Let’s give them a decent room." },
+  { floor:"First floor",  zone:"Left zone",    name:"Operations",        bed:"Queen",
+    people:["Marco Ciampini", "Leonardo Mostarda"],
+    note:"Queen bed, but don’t touch each other." },
+  { floor:"First floor",  zone:"Left zone",    name:"Engineering",       bed:"Two singles",
+    people:["Stefano Sansone", "Jacopo"],
+    note:"Wanted a queen bed to touch each other. Scared of cold feet? Ask Marco and Leonardo for a swap." },
+  { floor:"Anywhere",     zone:"Free zone",    name:"Bedless",           bed:"Air mattress, sofa, or a spare room if one turns up", free:true,
+    people:["Niels Amaral"],
+    note:"Likes sleeping around places, as he did in Fuerteventura. You may find him lying in the garden the next morning." },
+  { floor:"Anywhere",     zone:"Free zone",    name:"Bedless",           bed:"Air mattress, sofa, or a spare room if one turns up", free:true,
+    people:["Meggan Chaffey", "Hugo Moreno"],
+    note:"We can find a proper arrangement. You will be fine." }
 ];
 
 /* -- LOCATION ------------------------------------------------- */
@@ -888,6 +976,8 @@ const PLAN = [
   $("#board").innerHTML = rowsHTML;
 
   /* ---- name lookup -> boarding pass ------------------------ */
+  const roomOf = {};
+  ROOMS.forEach(r => r.people.forEach(n => { roomOf[n] = r; }));
   const input = $("#lookup"), out = $("#count"), pass = $("#pass");
   const rows = Array.prototype.slice.call(document.querySelectorAll(".row"));
   function search() {
@@ -912,6 +1002,7 @@ const PLAN = [
         "<div><dt>From</dt><dd>" + esc(g.from) + "</dd></div>" +
         "<div><dt>On</dt><dd>" + esc(g.op || (g.mode === "train" ? "Train" : "to come")) + "</dd></div>" +
         "<div><dt>Meet at</dt><dd>" + esc(g.point) + "</dd></div>" +
+        (roomOf[g.name] ? '<div><dt>Sleeps in</dt><dd><a href="#rooms">' + esc(roomOf[g.name].name) + "</a></dd></div>" : "") +
         (g.back ? "<div><dt>Heads home</dt><dd>" + esc(g.back) + "</dd></div>" : "") +
         "</dl></div>";
     } else {
@@ -1017,6 +1108,28 @@ const PLAN = [
 
   $("#notes").innerHTML = NOTES.map(n =>
     '<div class="note block"><h3>' + esc(n.h) + "</h3><p>" + esc(n.p) + "</p></div>").join("");
+
+  /* ---- rooms ----------------------------------------------- */
+  /* Each zone of the house takes a tile colour */
+  const ZONE_C = { "": "var(--groc)", "Suite zone": "var(--blau)", "Central zone": "var(--verd)",
+                   "Left zone": "var(--foc)", "Free zone": "var(--lila)" };
+  const floors = [];
+  ROOMS.forEach(r => {
+    let f = floors.find(x => x.name === r.floor);
+    if (!f) floors.push(f = { name: r.floor, rooms: [] });
+    f.rooms.push(r);
+  });
+  $("#floors").innerHTML = floors.map(f => {
+    const n = f.rooms.reduce((a, r) => a + r.people.length, 0);
+    return '<div class="floor"><div class="floorbar">' + esc(f.name) + "<span>" + n + (n === 1 ? " person" : " people") +
+      '</span></div><div class="rooms">' + f.rooms.map(r =>
+        '<article class="room block' + (r.free ? " free" : "") + '" style="--c:' + (ZONE_C[r.zone] || "var(--accent)") + '">' +
+        '<p class="zone">' + esc(r.zone || f.name) + "</p><h3>" + esc(r.name) + "</h3>" +
+        '<span class="bed">' + esc(r.bed) + "</span>" +
+        "<ul>" + r.people.map(p => "<li>" + esc(p) + "</li>").join("") + "</ul>" +
+        "<blockquote>" + esc(r.note) + "</blockquote></article>").join("") +
+      "</div></div>";
+  }).join("");
 
   /* ---- plan ------------------------------------------------ */
   $("#days").innerHTML = PLAN.map(d =>
